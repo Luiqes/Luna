@@ -18,7 +18,7 @@ Club Penguin Server Emulator - AS2 Protocol
  <li> Install all the Perl modules from the list below</li>
  <li> Import the <b>Install.sql</b> from the <b>SQL</b> folder using <b>Phpmyadmin/Adminer</b></li>
  <li> Setup the <b>Register</b> and create an account</li>
- <li> Edit </b>Config.pl</b> from the <b>Configuration</b> folder</li>
+ <li> Edit <b>Config.pl</b> from the <b>Configuration</b> folder</li>
  <li> Execute <b>Run.pm</b></li>
 </ul>
 
@@ -63,7 +63,7 @@ If you are using Windows, you can use the <b>Run.bat</b>
  <li> File::Fetch</li>
 </ul>
 
-<u><b>Important Note:</b></u> After you install <b>CPAN</b>, type <code>reload cpan</code> and continue installing the other modules
+<b>Important Note:</b> After you install <b>CPAN</b>, type <code>reload cpan</code> and continue installing the other modules
 
 ### Tutorials:
 <ul>
@@ -75,4 +75,4 @@ If you are using Windows, you can use the <b>Run.bat</b>
  <li><a href="http://www.adminer.org/">How to install Adminer(Optional)</a></li>
 </ul>
 
-<u><b>Note:</b></u> Windows users please do not install Perl when installing XAMPP
+<b>Note:</b> Windows users please do not install Perl when installing XAMPP
