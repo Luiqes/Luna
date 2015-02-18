@@ -1,0 +1,68 @@
+Change log for Luna:
+
+The following signs represents each category:
+
+! - Not implemented.
+$ - Successfully implemented.
+? - Planning to implement.
+% - Partially implemented.
+x - Bug fixes(vulnerabilities, errors, exploits, glitches).
+@ - Won't be implemented.
+~ - Implemented but has possible missing stuff.
+{} - Available extensions, such as plugins.
+
+--------
+CHANGES:
+--------
+
+$ Multiplex Socket Extension.
+$ Mysql Extension.
+$ Async Dynamic Crumbs.
+$ Plugin System.
+$ Cryptography Extension.
+$ Logger Extension.
+$ Tools Extension.
+$ Website Register.
+$ Security Features(Proper XML Parsing, Undefined Bot, Variable Checking) etc.
+$ Basic User Systems(Clothing, Snowball, Emotes, Messaging) etc.
+$ Redemption System.
+$ Buddies and Ignore System.
+$ Coins Digging System.
+$ Joining System.
+$ In Game Moderating System.
+$ Inventory System.
+$ Newspaper System.
+$ Commands.
+$ Message Censoring.
+$ Item Patching.
+$ Item Baiting.
+$ Room Population.
+$ Igloo System.
+$ Dynamic Game Servers List.
+
+~x EPF System.
+~x Stamps System.
+~x Mail System.
+~x Puffle System.
+
+%x Games(Single & Multiplayer).
+
+? More security features.
+? CPanel
+? SHA256 Algorithm
+
+{} http://rile5.com/topic/34954-how-to-implement-private-message-in-katana/
+{} http://rile5.com/topic/34925-awards-pluginkatana/
+{} http://rile5.com/topic/34856-imitation-pluginkatana/
+{} http://rile5.com/topic/34483-mascots-pluginkatana/
+{} http://rile5.com/topic/34413-snowball-serverkatana/
+{} http://rile5.com/topic/35122-login-notice-pluginkatana/
+{} http://rile5.com/topic/24586-custom-messages-in-your-cppsno-additional-swf-required/
+{} http://rile5.com/topic/21023-php-and-actionscript-ss-blend-and-alpha-commands/
+{} http://rile5.com/topic/35137-quest-plugin-for-katana/
+{} http://rile5.com/topic/35268-how-to-add-the-followbot-plugin-in-katana/
+{} http://rile5.com/topic/35357-how-to-add-welcome-message-in-katana/
+{} http://rile5.com/topic/33134-openglows-a-better-glows-system-for-your-cpps/
+{} http://rile5.com/topic/33623-openglows-penguin-speed-tutorial/
+{} http://rile5.com/topic/24719-transformations-dont-work/
+{} http://opencpext.tk/Moods.txt
