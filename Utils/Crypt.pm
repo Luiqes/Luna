@@ -4,7 +4,7 @@ use warnings;
 package Crypt;
 
 use Method::Signatures;
-use Digest::MD5 qw(md5_hex);
+use Digest::SHA qw(sha256_hex);
 
 method new {
        my $obj = bless {}, $self;
@@ -13,21 +13,21 @@ method new {
 
 method encryptPass(Str $strPassword, Str $strKey) {
        my $strSalt = 'Y(02.>\'H}t":E1';
-       my $strSwapped = $self->swapMD5($strPassword);
-       my $strHash = md5_hex($strSwapped . $strKey . $strSalt);
-       my $strSwappedHash = $self->swapMD5($strHash);
+       my $strSwapped = $self->swapSHA($strPassword);
+       my $strHash = sha256_hex($strSwapped . $strKey . $strSalt);
+       my $strSwappedHash = $self->swapSHA($strHash);
        return $strSwappedHash;
 }
 
-method swapMD5(Str $strHash) {
-       my $strSwapped = substr($strHash, 16, 16);
-       $strSwapped .= substr($strHash, 0, 16);
+method swapSHA(Str $strHash) {
+       my $strSwapped = substr($strHash, 32, 32);
+       $strSwapped .= substr($strHash, 0, 32);
        return $strSwapped;
 }
 
-method reverseMD5(Str $strKey) {
+method reverseSHA(Str $strKey) {
        my $revKey = reverse($strKey);
-       my $strHash = md5_hex($revKey);
+       my $strHash = sha256_hex($revKey);
        return $strHash;
 }
 

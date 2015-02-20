@@ -4,7 +4,7 @@ use warnings;
 package ClubPenguin;
 
 use Method::Signatures;
-use Digest::MD5 qw(md5_hex);
+use Digest::SHA qw(sha256_hex);
 use Math::Round qw(round);
 use File::Basename;
 use List::Compare qw(is_LsubsetR);
@@ -219,8 +219,8 @@ method generateHash($strPass, $arrInfo, $objClient) {
                                return $strEncPass;
        };
        my $strGameHash = method {
-                              my $strMD5 = md5_hex($arrInfo->{loginKey} . $strLoginKey);
-                              my $strSwapped = $self->{modules}->{crypt}->swapMD5($strMD5);
+                              my $strSHA = sha256_hex($arrInfo->{loginKey} . $strLoginKey);
+                              my $strSwapped = $self->{modules}->{crypt}->swapSHA($strSHA);
                               $strSwapped .= $arrInfo->{loginKey};
                               return $strSwapped;     
        };
@@ -232,8 +232,8 @@ method generateHash($strPass, $arrInfo, $objClient) {
 method continueLogin($strName, $arrInfo, $objClient) {
        if ($self->{servConfig}->{servType} eq 'login') {
            $objClient->write('%xt%gs%-1%' . $self->generateServerList() . '%');  
-           $objClient->write('%xt%l%-1%' . $arrInfo->{ID} . '%' . $self->{modules}->{crypt}->reverseMD5($objClient->{property}->{personal}->{loginKey}) . '%0%');
-           $objClient->updateKey($self->{modules}->{crypt}->reverseMD5($objClient->{property}->{personal}->{loginKey}), $strName);
+           $objClient->write('%xt%l%-1%' . $arrInfo->{ID} . '%' . $self->{modules}->{crypt}->reverseSHA($objClient->{property}->{personal}->{loginKey}) . '%0%');
+           $objClient->updateKey($self->{modules}->{crypt}->reverseSHA($objClient->{property}->{personal}->{loginKey}), $strName);
        } else {
            $objClient->{property}->{personal}->{userID} = $arrInfo->{ID};
            $objClient->updateIP($objClient->{property}->{personal}->{ipAddr});

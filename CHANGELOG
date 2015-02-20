@@ -39,6 +39,7 @@ $ Item Baiting.
 $ Room Population.
 $ Igloo System.
 $ Dynamic Game Servers List.
+$ SHA256 Algorithm
 
 ~x EPF System.
 ~x Stamps System.
@@ -49,7 +50,6 @@ $ Dynamic Game Servers List.
 
 ? More security features.
 ? CPanel
-? SHA256 Algorithm
 
 {} http://rile5.com/topic/34954-how-to-implement-private-message-in-katana/
 {} http://rile5.com/topic/34925-awards-pluginkatana/
