@@ -49,7 +49,7 @@ If you are using Windows, you can use the <b>Run.bat</b>
  <li> JSON</li>
  <li> Coro</li>
  <li> DBI</li>
- <li> DBD::mysqlPP</li>
+ <li> DBD::mysql</li>
  <li> Module::Find</li>
  <li> List::Util</li>
  <li> List::Compare</li>
