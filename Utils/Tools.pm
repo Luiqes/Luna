@@ -20,7 +20,9 @@ method asyncGetContent(\@arrUrls) {
        my @arrCoro = map {
                     my $strUrl = $_;
                     async {
-                        my $strName = basename($strUrl, '.json');
+                        my $strBase = basename($strUrl);
+                        my @arrParts = split('.', $strBase);
+                        my $strName = $arrParts[0];
                         my $arrData = get($strUrl);
                         $arrInfo{$strName} = $arrData;
                     }
