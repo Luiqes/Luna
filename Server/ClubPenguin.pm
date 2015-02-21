@@ -213,19 +213,10 @@ method checkBeforeLogin($strName, $strPass, $objClient) {
 
 method generateHash($strPass, $arrInfo, $objClient) {
        my $strLoginKey = $objClient->{property}->{personal}->{loginKey};
-       my $strLoginHash = method {
-                               my $strUCPass = uc($arrInfo->{password});
-                               my $strEncPass = $self->{modules}->{crypt}->encryptPass($strUCPass, $strLoginKey);
-                               return $strEncPass;
-       };
-       my $strGameHash = method {
-                              my $strSHA = sha256_hex($arrInfo->{loginKey} . $strLoginKey);
-                              my $strSwapped = $self->{modules}->{crypt}->swapSHA($strSHA);
-                              $strSwapped .= $arrInfo->{loginKey};
-                              return $strSwapped;     
-       };
+       my $strLoginHash = $self->{modules}->{crypt}->encryptPass(uc($arrInfo->{password}), $strLoginKey);                            
+       my $strGameHash = $self->{modules}->{crypt}->swapSHA(sha256_hex($arrInfo->{loginKey} . $strLoginKey)) . $arrInfo->{loginKey};
        my $strType = $self->{servConfig}->{servType};
-       my $strHash = $strType eq 'login' ? &$strLoginHash : &$strGameHash;
+       my $strHash = $strType eq 'login' ? $strLoginHash : $strGameHash;
        return $strHash;
 }
 
