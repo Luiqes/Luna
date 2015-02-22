@@ -41,7 +41,7 @@ If you are using Windows, you can use the <b>Run.bat</b>
  <li> HTML::Entities</li>
  <li> IO::Socket</li>
  <li> IO::Select</li>
- <li> Digest::SHA</li>
+ <li> Digest::MD5</li>
  <li> XML::Simple</li>
  <li> LWP::Simple</li>
  <li> Scalar::Util</li>
