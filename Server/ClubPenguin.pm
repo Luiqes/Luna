@@ -4,7 +4,7 @@ use warnings;
 package ClubPenguin;
 
 use Method::Signatures;
-use Digest::SHA qw(sha256_hex);
+use Digest::MD5 qw(md5_hex);
 use Math::Round qw(round);
 use File::Basename;
 use List::Compare qw(is_LsubsetR);
@@ -186,7 +186,7 @@ method handleLogin($strXML, $strData, $objClient) {
 method checkBeforeLogin($strName, $strPass, $objClient) {
        my $intNames = $self->{modules}->{mysql}->countRows("SELECT `username` FROM $self->{dbConfig}->{tables}->{main} WHERE `username` = '$strName'");
        my $arrInfo = $self->{modules}->{mysql}->fetchColumns("SELECT * FROM $self->{dbConfig}->{tables}->{main} WHERE `username` = '$strName'");
-       my $strHash = $self->generateHash($strPass, $arrInfo, $objClient);      
+       my $strHash = $self->generateHash($arrInfo, $objClient);      
 
        return if (!$arrInfo);
 
@@ -211,10 +211,10 @@ method checkBeforeLogin($strName, $strPass, $objClient) {
        $self->continueLogin($strName, $arrInfo, $objClient);
 } 
 
-method generateHash($strPass, $arrInfo, $objClient) {
+method generateHash($arrInfo, $objClient) {
        my $strLoginKey = $objClient->{property}->{personal}->{loginKey};
        my $strLoginHash = $self->{modules}->{crypt}->encryptPass(uc($arrInfo->{password}), $strLoginKey);                            
-       my $strGameHash = $self->{modules}->{crypt}->swapSHA(sha256_hex($arrInfo->{loginKey} . $strLoginKey)) . $arrInfo->{loginKey};
+       my $strGameHash = $self->{modules}->{crypt}->swapMD5(md5_hex($arrInfo->{loginKey} . $strLoginKey)) . $arrInfo->{loginKey};
        my $strType = $self->{servConfig}->{servType};
        my $strHash = $strType eq 'login' ? $strLoginHash : $strGameHash;
        return $strHash;
@@ -223,8 +223,8 @@ method generateHash($strPass, $arrInfo, $objClient) {
 method continueLogin($strName, $arrInfo, $objClient) {
        if ($self->{servConfig}->{servType} eq 'login') {
            $objClient->write('%xt%gs%-1%' . $self->generateServerList() . '%');  
-           $objClient->write('%xt%l%-1%' . $arrInfo->{ID} . '%' . $self->{modules}->{crypt}->reverseSHA($objClient->{property}->{personal}->{loginKey}) . '%0%');
-           $objClient->updateKey($self->{modules}->{crypt}->reverseSHA($objClient->{property}->{personal}->{loginKey}), $strName);
+           $objClient->write('%xt%l%-1%' . $arrInfo->{ID} . '%' . $self->{modules}->{crypt}->reverseMD5($objClient->{property}->{personal}->{loginKey}) . '%0%');
+           $objClient->updateKey($self->{modules}->{crypt}->reverseMD5($objClient->{property}->{personal}->{loginKey}), $strName);
        } else {
            $objClient->{property}->{personal}->{userID} = $arrInfo->{ID};
            $objClient->updateIP($objClient->{property}->{personal}->{ipAddr});
