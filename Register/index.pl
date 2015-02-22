@@ -3,7 +3,7 @@ use warnings;
 
 use CGI;
 use Method::Signatures;
-use Digest::SHA qw(sha256_hex);
+use Digest::MD5 qw(md5_hex);
 use Drivers::Mysql;
 use Captcha::reCAPTCHA;
 use feature qw(say);
@@ -73,7 +73,7 @@ method parseResults($arrConfig, $objMysql, $objCaptcha, $objHtml) {
            error($arrResult->{error});
        }
 
-       my $strHash = sha256_hex($strPass);
+       my $strHash = md5_hex($strPass);
 
        $objMysql->execQuery("INSERT INTO $arrConfig{dbTable} (`nickname`, `username`, `password`, `colour`, `active`, `ipAddr`) VALUES ('" . $strName . "', '" . $strName . "', '" . $strHash . "', '" . $intColour . "', '1', '" . $strIP . "')");
        $objMysql->execQuery("INSERT INTO $arrConfig{stampsTable} (`username`) VALUES ('" . $strName . "')");
