@@ -73,11 +73,11 @@ method handleBanClient($objClient, Defined $strName) {
 method handleUnbanClient($objClient, Defined $strName) {
        return if ($objClient->{property}->{personal}->{rank} < 4);
        $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'isBanned', '', 'username', $strName);
-       #Must update ban count as well
+       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'banCount', 0, 'username', $strName);
 }
 
-method handleChangeNickname($objClient, Str $strNick) {
-       if (!defined($strNick) && $strNick !~ /^[a-zA-Z0-9]+$/) {
+method handleChangeNickname($objClient, Defined $strNick) {
+       if ($strNick !~ /^[a-zA-Z0-9]+$/) {
            return $objClient->sendError(441);
        }
        my $arrInfo = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT `username`, `nickname` FROM $self->{parent}->{dbConfig}->{tables}->{main} WHERE `nickname` = '$strNick'");
