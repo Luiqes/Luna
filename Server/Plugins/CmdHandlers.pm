@@ -70,6 +70,11 @@ method handleBanClient($objClient, Defined $strName) {
        $objPlayer->{property}->{personal}->{isBanned} = 'PERM';
 }
 
+method handleKickBanClient($objClient, Defined $strName) {
+       $self->handleKickClient($objClient, $strName);
+       $self->handleBanClient($objClient, $strName);
+}
+
 method handleUnbanClient($objClient, Defined $strName) {
        return if ($objClient->{property}->{personal}->{rank} < 4);
        $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'isBanned', '', 'username', $strName);

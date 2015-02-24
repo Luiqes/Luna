@@ -23,6 +23,7 @@ method new($resChild) {
                  },
                  staff => {
                        tban => 'handleTimeBanClient',
+                       kbc => 'handleKickBanClient',
                        ban => 'handleBanClient',
                        unban => 'handleUnbanClient',
                        reboot => 'handleServerReboot',
