@@ -34,6 +34,7 @@ method new($resConfig, $resDBConfig) {
                           rsgc => 'handleRedemptionSendGoldenCode'     
                }
        };
+       %{$obj->{iplog}} = ();
        %{$obj->{igloos}} = ();
        $obj->{systems} = ();
        %{$obj->{plugins}} = ();
