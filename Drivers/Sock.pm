@@ -77,8 +77,13 @@ method addClient {
        $self->{listener}->add($resSocket);
        my $objClient = CPUser->new($self->{child}, $resSocket);
        my $intKey = fileno($resSocket);
+       my $strIP = $self->getClientIPAddr($resSocket);
        $self->{clients}->{$intKey} = $objClient;
-       $objClient->{property}->{personal}->{ipAddr} = $self->getClientIPAddr($resSocket);
+       $objClient->{property}->{personal}->{ipAddr} = $strIP;
+       $self->{child}->{iplog}->{$strIP} = ($self->{child}->{iplog}->{$strIP}) ? $self->{child}->{iplog}->{$strIP} +1 : 1;
+       if (exists($self->{child}->{iplog}->{$strIP} && $self->{child}->{iplog}->{$strIP} > 3) {
+           return $self->removeClientBySock($resSocket);
+       } 
 }
 
 method handleData(Str $strData, $objClient) {
