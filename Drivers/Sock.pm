@@ -81,7 +81,7 @@ method addClient {
        $self->{clients}->{$intKey} = $objClient;
        $objClient->{property}->{personal}->{ipAddr} = $strIP;
        $self->{child}->{iplog}->{$strIP} = ($self->{child}->{iplog}->{$strIP}) ? $self->{child}->{iplog}->{$strIP} +1 : 1;
-       if (exists($self->{child}->{iplog}->{$strIP} && $self->{child}->{iplog}->{$strIP} > 3) {
+       if (exists($self->{child}->{iplog}->{$strIP}) && $self->{child}->{iplog}->{$strIP} > 3) {
            return $self->removeClientBySock($resSocket);
        } 
 }
