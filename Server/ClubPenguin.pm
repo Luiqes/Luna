@@ -227,6 +227,7 @@ method continueLogin($strName, $arrInfo, $objClient) {
            $objClient->updateKey($self->{modules}->{crypt}->reverseMD5($objClient->{property}->{personal}->{loginKey}), $strName);
        } else {
            $objClient->{property}->{personal}->{userID} = $arrInfo->{ID};
+           $objClient->{property}->{personal}->{isAuth} = 1;
            $objClient->updateIP($objClient->{property}->{personal}->{ipAddr});
            $objClient->loadDetails();
            $objClient->sendXT('l', '-1');
@@ -264,7 +265,7 @@ method handleXTData($strData, $objClient) {
        my $chrXT = $arrData[2];
        return if (!exists($self->{handlers}->{xt}->{$chrXT}));
        my $strHandler = $self->{handlers}->{xt}->{$chrXT};
-       return if (!defined(&{$strHandler}));
+       return if (!defined(&{$strHandler}) && !$objClient->{property}->{personal}->{isAuth});
        return defined($objClient->{property}->{personal}->{username}) ? $self->$strHandler($strData, $objClient) : $self->{modules}->{base}->removeClientBySock($objClient->{sock});
 }
 

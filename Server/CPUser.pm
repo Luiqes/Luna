@@ -27,6 +27,7 @@ method new($resParent, $resSock) {
                         isBanned => '',
                         isStaff => 0,
                         isAdmin => 0,
+                        isAuth => 0,
                         language => 1,
                         lastHeartBeat => 0, 
                         lastCommand => 0,       
