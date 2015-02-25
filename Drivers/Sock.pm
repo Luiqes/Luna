@@ -102,6 +102,7 @@ method removeClientBySock($resSocket) {
               if ($objClient->{sock} == $resSocket) {
                   $self->{listener}->remove($resSocket);
                   $resSocket->close();
+                  delete($self->{child}->{iplog}->{$objClient->{property}->{personal}->{ipAddr}});
                   delete($self->{clients}->{$intIndex});
               }
        }
