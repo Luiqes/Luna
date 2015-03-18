@@ -203,7 +203,7 @@ method checkBeforeLogin($strName, $strPass, $objClient) {
        } elsif ($arrInfo->{isBanned} eq 'PERM') {
            $objClient->sendError(603);	
            return $self->{modules}->{base}->removeClientBySock($objClient->{sock});
-       } elsif ($arrInfo->{isBanned} <= time()) {
+       } elsif ($arrInfo->{isBanned} > time()) {
            my $intTime = round(($arrInfo->{isBanned} - time()) / 3600);
            $objClient->sendError(601 . '%' . $intTime);	
            return $self->{modules}->{base}->removeClientBySock($objClient->{sock});
