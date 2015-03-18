@@ -12,10 +12,7 @@ method new {
 }
 
 method encryptPass(Str $strPassword, Str $strKey) {
-       my $strSalt = 'Y(02.>\'H}t":E1';
-       my $strSwapped = $self->swapMD5($strPassword);
-       my $strHash = md5_hex($strSwapped . $strKey . $strSalt);
-       my $strSwappedHash = $self->swapMD5($strHash);
+       my $strSwappedHash = $self->swapMD5(md5_hex($self->swapMD5($strPassword) . $strKey . 'Y(02.>\'H}t":E1'));
        return $strSwappedHash;
 }
 
