@@ -186,6 +186,10 @@ method setCoins(Int $intCoins) {
        $self->{property}->{personal}->{coins} = $intCoins;
 }
 
+method updateKey(Str $strKey, Defined $strName) {
+       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'loginKey', $strKey, 'username', $strName);
+}
+
 method updatePlayerCard(Str $strData, Str $strType, Int $intItem) {
        $self->sendRoom('%xt%' . $strData . '%-1%' . $self->{property}->{personal}->{userID} . '%' . $intItem . '%');
        $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, $strType, $intItem, 'ID', $self->{property}->{personal}->{userID});
