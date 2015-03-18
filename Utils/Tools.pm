@@ -8,7 +8,7 @@ use LWP::Simple;
 use XML::Simple;
 use File::Fetch;
 use Coro;
-use File::Basename
+use File::Basename;
 
 method new {
        my $obj = bless {}, $self;
