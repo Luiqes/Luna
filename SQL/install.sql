@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `username` varchar(20) NOT NULL,
   `nickname` varchar(20) NOT NULL,
   `password` varchar(250) NOT NULL,
-  `loginKey` varchar(30) NOT NULL,
+  `loginKey` varchar(32) NOT NULL,
   `ipAddr` longtext NOT NULL,
   `age` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `active` tinyint(1) NOT NULL DEFAULT '1',
