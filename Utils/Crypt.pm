@@ -20,8 +20,8 @@ method encryptPass(Str $strPassword, Str $strKey) {
 }
 
 method swapMD5(Str $strHash) {
-       my $strSwapped = substr($strHash, 32, 32);
-       $strSwapped .= substr($strHash, 0, 32);
+       my $strSwapped = substr($strHash, 16, 16);
+       $strSwapped .= substr($strHash, 0, 16);
        return $strSwapped;
 }
 
