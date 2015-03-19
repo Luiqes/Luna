@@ -190,6 +190,10 @@ method updateKey(Str $strKey, Defined $strName) {
        $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'loginKey', $strKey, 'username', $strName);
 }
 
+method updateIP(Str $ipAddr) {
+       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'ipAddr', $ipAddr, 'ID', $self->{property}->{personal}->{userID});
+}
+
 method updatePlayerCard(Str $strData, Str $strType, Int $intItem) {
        $self->sendRoom('%xt%' . $strData . '%-1%' . $self->{property}->{personal}->{userID} . '%' . $intItem . '%');
        $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, $strType, $intItem, 'ID', $self->{property}->{personal}->{userID});
