@@ -50,7 +50,7 @@ method handleEPFGetFieldOPStatus(\@arrData, $objClient) {
 
 method handleEPFSetFieldOPStatus(\@arrData, $objClient) {
        $objClient->{property}->{epf}->{fieldOPStatus} ? $objClient->updateOPStat(0) : $objClient->updateOPStat(1);
-       $objClient->sendXT([('epfsf', $arrData[4], $objClient->{property}->{epf}->{fieldOPStatus}]);
+       $objClient->sendXT(['epfsf', $arrData[4], $objClient->{property}->{epf}->{fieldOPStatus}]);
 }
 
 method handleEPFSetAgent(\@arrData, $objClient) {
