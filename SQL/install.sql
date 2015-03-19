@@ -45,15 +45,16 @@ CREATE TABLE IF NOT EXISTS `puffles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS `postcards` (
-  `toUser` int(11) NOT NULL,
-  `fromID` int(11) NOT NULL,
-  `fromName` varchar(20) NOT NULL,
-  `cardType` int(11) NOT NULL,
-  `details` longtext NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `postcardID` int(10) NOT NULL AUTO_INCREMENT,
+  `recepient` int(10) NOT NULL,
+  `mailerName` char(12) NOT NULL,
+  `mailerID` int(10) NOT NULL,
+  `notes` varchar(12) NOT NULL,
+  `timestamp` int(8) NOT NULL,
+  `postcardType` smallint(5) NOT NULL,
   `isRead` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`toUser`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1; 
+  PRIMARY KEY (`postcardID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS `stamps` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
@@ -97,5 +98,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   `fieldOPStatus` tinyint(1) NOT NULL DEFAULT '0',
   `medalsUsed` int(10) NOT NULL DEFAULT '50',
   `medalsUnused` int(10) NOT NULL DEFAULT '100',
+  `isNewMail` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
