@@ -32,7 +32,8 @@ method new($resParent, $resSock) {
                         lastHeartBeat => 0, 
                         lastCommand => 0,       
                         lastMessage => '',
-                        banCount => 0
+                        banCount => 0,
+                        isNewMail => 1
                },
                clothing => {
                         colour => 0,
@@ -70,7 +71,6 @@ method new($resParent, $resSock) {
        $obj->{buddies} = ();
        $obj->{ignored} = ();
        $obj->{inventory} = ();
-       $obj->{mails} = ();
        $obj->{ownedIgloos} = ();
        $obj->{ownedFurns} = ();
        %{$obj->{buddyRequests}} = ();
@@ -120,7 +120,8 @@ method loadDetails {
        $self->{property}->{personal}->{isAdmin} = $arrInfo->{isAdmin};
        $self->{property}->{personal}->{isMuted} = $arrInfo->{isMuted};
        $self->{property}->{personal}->{isBanned} = $arrInfo->{isBanned};
-       $self->{property}->{personal}->{banCount} = $arrInfo->{banCount};        
+       $self->{property}->{personal}->{banCount} = $arrInfo->{banCount};
+       $self->{property}->{personal}->{isNewMail} = $arrInfo->{isNewMail};             
        $self->{property}->{epf}->{isEPF} = $arrInfo->{isEPF};
        $self->{property}->{epf}->{fieldOPStatus} = $arrInfo->{fieldOPStatus};
        $self->{property}->{epf}->{medalsUsed} = $arrInfo->{medalsUsed};
@@ -426,6 +427,39 @@ method updateMusic(Int $intMusic) {
 method botSay(Str $strMsg) {
        return if (length($strMsg) > 250);
        $self->sendRoom('%xt%sm%-1%0%' . decode_entities($strMsg) . '%');
+}
+
+method getPostcards(Int $playerID) {
+       my $arrDetails = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT `mailerName`, `mailerID`, `postcardType`, `notes`, `timestamp`, `postcardID` FROM $self->{parent}->{dbConfig}->{tables}->{mail} WHERE `recepient` = '$playerID'");
+       return $arrDetails;
+}
+
+method getUnreadPostcards(Int $playerID) {
+       my $arrPostcards = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT * FROM $self->{parent}->{dbConfig}->{tables}->{mail} WHERE `recepient` = '$playerID'");
+       my $unreadCount = 0;
+       foreach (%{$arrPostcards}) {
+                if (!$_>{isRead}) {
+                    $unreadCount++;
+                }
+       }
+       return $unreadCount;
+}
+
+method getPostcardCount(Int $playerID) {
+       my $intCount = $self->{parent}->{modules}->{mysql}->countRows("SELECT `recepient` FROM $self->{parent}->{dbConfig}->{tables}->{mail} WHERE `recepient` = '$playerID'");
+       return $intCount;
+}
+
+method sendPostcard(Int $recepient, Str $mailerName, Int $mailerID, Str $notes, Int $type, Int $timestamp) {
+       my @fields = ('recepient', 'mailerName', 'mailerID', 'notes', 'timestamp', 'postcardType');
+       my @values = ($recepient, $mailerName, $mailerID, $notes, $type, $timestamp);
+       my $postcardID = $self->{parent}->{modules}->{mysql}->insertData($self->{parent}->{dbConfig}->{tables}->{mail}, \@fields, \@values);
+       return $postcardID;
+}
+
+method updateNewMail(Bool $isNew) {
+       $self->{property}->{personal}->{isNewMail} = $isNew;
+       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'isNewMail', $isNew, 'ID', $self->{property}->{personal}->{userID});
 }
 
 method DESTROY {
