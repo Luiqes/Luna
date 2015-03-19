@@ -40,21 +40,21 @@ method handleSendStampEarned(\@arrData, $objClient) {
        my $strREStamps = $strFetchedREStamps . '|' . $intStamp;
        $self->{child}->{modules}->{mysql}->updateTable($self->{child}->{dbConfig}->{tables}->{stamp}, 'stamps', $strStamps, 'ID', $objClient->{property}->{personal}->{userID});
        $self->{child}->{modules}->{mysql}->updateTable($self->{child}->{dbConfig}->{tables}->{stamp}, 'restamps', $strREStamps, 'ID', $objClient->{property}->{personal}->{userID});
-       $objClient->sendXT('aabs', '-1', $intStamp);
+       $objClient->sendXT(['aabs', '-1', $intStamp]);
 }
 
 method handleGetPlayersStamps(\@arrData, $objClient) {
        my $intID = $arrData[5];
        my $arrInfo = $self->{child}->{modules}->{mysql}->fetchColumns("SELECT `stamps` FROM $self->{child}->{dbConfig}->{tables}->{stamp} WHERE `ID` = '$intID'");
        my $strStamps = $arrInfo->{stamps};
-       $objClient->sendXT('gps', '-1', $intID, $strStamps);
+       $objClient->sendXT(['gps', '-1', $intID, $strStamps]);
 }
 
 method handleGetMyRecentlyEarnedStamps(\@arrData, $objClient) {
        my $intID = $objClient->{property}->{personal}->{userID};
        my $arrInfo = $self->{child}->{modules}->{mysql}->fetchColumns("SELECT `restamps` FROM $self->{child}->{dbConfig}->{tables}->{stamp} WHERE `ID` = '$intID'");
        my $strREStamps = $arrInfo->{restamps};
-       $objClient->sendXT('gmres', '-1', $intID, $strREStamps);
+       $objClient->sendXT(['gmres', '-1', $intID, $strREStamps]);
        $self->{child}->{modules}->{mysql}->updateTable($self->{child}->{dbConfig}->{tables}->{stamp}, 'restamps', '', 'ID', $intID);
 }
 

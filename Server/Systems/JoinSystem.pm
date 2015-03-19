@@ -27,7 +27,7 @@ method handleJoinSystem($strData, $objClient) {
 
 method handleJoinPlayer(\@arrData, $objClient) {
        my $intRoom = $arrData[5];
-       $objClient->sendXT('jp', $arrData[4], $intRoom); 
+       $objClient->sendXT(['jp', $arrData[4], $intRoom]); 
        $objClient->joinRoom($intRoom);
 }
 
@@ -40,8 +40,8 @@ method handleJoinRoom(\@arrData, $objClient) {
 
 method handleJoinServer(\@arrData, $objClient) {
        $objClient->updateKey('', $objClient->{property}->{personal}->{username});
-       $objClient->sendXT('js', $arrData[4], 1, ($objClient->{property}->{epf}->{isEPF} ? 1 : 0), ($objClient->{property}->{personal}->{isStaff} ? 1 : 0));
-       $objClient->sendXT('lp', $arrData[4], $objClient->buildClientString(), $objClient->{property}->{personal}->{coins}, 0, 1440, 100, $objClient->{property}->{personal}->{age}, 4, $objClient->{property}->{personal}->{age}, 7);
+       $objClient->sendXT(['js', $arrData[4], 1, ($objClient->{property}->{epf}->{isEPF} ? 1 : 0), ($objClient->{property}->{personal}->{isStaff} ? 1 : 0)]);
+       $objClient->sendXT(['lp', $arrData[4], $objClient->buildClientString(), $objClient->{property}->{personal}->{coins}, 0, 1440, 100, $objClient->{property}->{personal}->{age}, 4, $objClient->{property}->{personal}->{age}, 7]);
        $objClient->sendEarnedStamps();
        $objClient->joinRoom($self->{child}->generateRoom());     
 }

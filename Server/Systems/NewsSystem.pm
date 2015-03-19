@@ -25,11 +25,11 @@ method handleNewsSystem($strData, $objClient) {
 }
 
 method handleAddToy($objClient, Int $intPID) {
-       $objClient->sendXT('at', '-1', $intPID, 1);
+       $objClient->sendXT(['at', '-1', $intPID, 1]);
 }
 
 method handleRemoveToy($objClient, Int $intPID) {
-       $objClient->sendXT('rt', '-1', $intPID);
+       $objClient->sendXT(['rt', '-1', $intPID]);
 }
 
 1;

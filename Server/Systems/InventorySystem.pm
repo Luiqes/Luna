@@ -27,7 +27,7 @@ method handleInventorySystem($strData, $objClient) {
 }
 
 method handleGetItems(\@arrData, $objClient) {
-       $objClient->sendXT('gi', $arrData[4], join('%',  @{$objClient->{inventory}})); 
+       $objClient->sendXT(['gi', $arrData[4], join('%',  @{$objClient->{inventory}})]); 
 }
 
 method handleAddItem(\@arrData, $objClient) {
@@ -46,7 +46,7 @@ method handleQueryPlayerAwards(\@arrData, $objClient) {
           }
        }
        my $strAwards = join('|', @arrAwards);
-       $objClient->sendXT('qpa', '-1', $intPID, $strAwards);
+       $objClient->sendXT(['qpa', '-1', $intPID, $strAwards]);
 }
 
 method handleQueryPlayerPins(\@arrData, $objClient) {
@@ -61,7 +61,7 @@ method handleQueryPlayerPins(\@arrData, $objClient) {
 				     }   
        }
        my $strPins = join('|', @arrPins) . time() . '|0%';
-       $objPlayer->sendXT('qpp', '-1', $strPins);
+       $objPlayer->sendXT(['qpp', '-1', $strPins]);
 }
 
 1;

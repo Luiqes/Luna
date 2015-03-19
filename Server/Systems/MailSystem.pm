@@ -37,7 +37,7 @@ method handleMailStart(\@arrData, $objClient) {
               $intCount++;
           }
        }
-       $objClient->sendXT('mst', '-1', $intCount, scalar(keys %{$objClient->{mails}}));
+       $objClient->sendXT(['mst', '-1', $intCount, scalar(keys %{$objClient->{mails}})]);
 }
 
 method handleMailGet(\@arrData, $objClient) {
@@ -53,7 +53,7 @@ method handleMailSend(\@arrData, $objClient) {
        my @arrNewCard = ('fromID' => $objClient->{property}->{personal}->{userID}, 'fromName' => $objClient->{property}->{personal}->{username}, 'type' => $intCard, 'extra' => $strDetails, 'timestamp' => time());        
        $self->{child}->{modules}->{mysql}->execQuery("INSERT INTO $self->{child}->{dbConfig}->{tables}->{mail} (`toUser`, `fromID`, `fromName`, `cardType`, `details`) VALUES ('" . $intPID . "', '" . $arrNewCard[0] . "', '" . $arrNewCard[1] . "', '" . $arrNewCard[2] . "', '" . $arrNewCard[3] . "')");
        $objClient->setCoins($objClient->{property}->{personal}->{coins} - 10);
-       $objClient->sendXT('ms', '-1', $objClient->{property}->{personal}->{coins});
+       $objClient->sendXT(['ms', '-1', $objClient->{property}->{personal}->{coins}]);
        my $objPlayer = $objClient->getClientByID($intPID);
        $objPlayer->{mails}->{$intCard}->{fromID} = $arrNewCard[0];
        $objPlayer->{mails}->{$intCard}->{fromName} = $arrNewCard[1];
@@ -61,14 +61,14 @@ method handleMailSend(\@arrData, $objClient) {
        $objPlayer->{mails}->{$intCard}->{extra} = $arrNewCard[3];
        $objPlayer->{mails}->{$intCard}->{timestamp} = $arrNewCard[4];
        $objPlayer->{mails}->{$intCard}->{hasRead} = 0;
-       $objPlayer->sendXT('mr', '-1', join('|', @arrNewCard), scalar(keys %{$objPlayer->{mails}}));
+       $objPlayer->sendXT(['mr', '-1', join('|', @arrNewCard), scalar(keys %{$objPlayer->{mails}})]);
 }		  
 
 method handleMailChecked(\@arrData, $objClient) {
        my $intCard = $arrData[5];
        return if (!int($intCard));
        $self->{child}->{modules}->{mysql}->updateTable($self->{child}->{dbConfig}->{tables}->{mail}, 'isRead', 1, 'cardType', $intCard);
-       $objClient->sendXT('mc', '-1', $intCard);
+       $objClient->sendXT(['mc', '-1', $intCard]);
 }
 
 method handleMailDeletePlayer(\@arrData, $objClient) {
@@ -79,7 +79,7 @@ method handleMailDeletePlayer(\@arrData, $objClient) {
               delete($objClient->{mails}->{$strCard->{type}});
           }
        } 
-       $objClient->sendXT('mdp', $arrData[4], $intPID);
+       $objClient->sendXT(['mdp', $arrData[4], $intPID]);
        $self->{child}->{modules}->{mysql}->execQuery("DELETE FROM $self->{child}->{dbConfig}->{tables}->{mail} WHERE `toUser` = '$intPID' AND `fromID` = '$objClient->{property}->{personal}->{userID}'");
 }
 
@@ -92,7 +92,7 @@ method handleDeleteMail(\@arrData, $objClient) {
           }
        }
        $self->{child}->{modules}->{mysql}->execQuery("DELETE FROM $self->{child}->{dbConfig}->{tables}->{mail} WHERE `cardType` = '$intPID'");
-       $objClient->sendXT('md', '-1', $intPID);
+       $objClient->sendXT(['md', '-1', $intPID]);
 }
 
 method fetchMailData($objClient) {

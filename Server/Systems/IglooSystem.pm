@@ -66,12 +66,12 @@ method handleGetIglooDetails(\@arrData, $objClient) {
        my $intMusic = $arrInfo->{music};
        my $intFloor = $arrInfo->{floor};
        my $strFurn = $arrInfo->{furniture};
-       $objClient->sendXT('gm', $arrData[4], $intPID, $intIgloo, $intMusic, $intFloor, $strFurn);
+       $objClient->sendXT(['gm', $arrData[4], $intPID, $intIgloo, $intMusic, $intFloor, $strFurn]);
 }
 
 method handleGetOwnedIgloos(\@arrData, $objClient) {
        my $strIgloos = join('|', @{$objClient->{ownedIgloos}});
-       $objClient->sendXT('go', $arrData[4], $strIgloos);
+       $objClient->sendXT(['go', $arrData[4], $strIgloos]);
 }
 
 method handleOpenIgloo(\@arrData, $objClient) {
@@ -84,7 +84,7 @@ method handleCloseIgloo(\@arrData, $objClient) {
 
 method handleGetOwnedFurniture(\@arrData, $objClient) {
        my $strFurns = join('%', @{$objClient->{ownedFurns}});
-       $objClient->sendXT('gf', $arrData[4], $strFurns);
+       $objClient->sendXT(['gf', $arrData[4], $strFurns]);
 }
 
 method handleGetFurnitureRevision(\@arrData, $objClient) {

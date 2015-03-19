@@ -176,7 +176,7 @@ method sendError($intError) {
 }
 
 method updateCoins(Int $intCoins) {
-       $self->sendXT('zo', '-1', $intCoins);
+       $self->sendXT(['zo', '-1', $intCoins]);
        $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'coins', $intCoins, 'ID', $self->{property}->{personal}->{userID});
        $self->{property}->{personal}->{coins} = $intCoins;
 }
@@ -188,10 +188,6 @@ method setCoins(Int $intCoins) {
 
 method updateKey(Str $strKey, Defined $strName) {
        $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'loginKey', $strKey, 'username', $strName);
-}
-
-method updateIP(Str $ipAddr) {
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'ipAddr', $ipAddr, 'ID', $self->{property}->{personal}->{userID});
 }
 
 method updatePlayerCard(Str $strData, Str $strType, Int $intItem) {
@@ -232,18 +228,18 @@ method sendMessage(Str $strMsg) {
 }
 
 method getLatestRevision {
-       $self->sendXT('glr', '-1', 3555);
+       $self->sendXT(['glr', '-1', 3555]);
 }
 
 method getPlayer(Int $intPID) {
        my $arrInfo = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT `ID`, `nickname`, `bitMask`, `colour`, `face`, `body`, `feet`, `hand`, `neck`, `head`, `flag`, `photo`, `rank` * 146 FROM $self->{parent}->{dbConfig}->{tables}->{main} WHERE `ID` = '$intPID'");
        return if (!$arrInfo);
-       $self->sendXT('gp', '-1', join('|', values %{$arrInfo}));
+       $self->sendXT(['gp', '-1', join('|', values %{$arrInfo})]);
 }
 
 method sendHeartBeat {
        return if ($self->{property}->{personal}->{lastHeartBeat} > time());
-       $self->sendXT('h', '-1');
+       $self->sendXT(['h', '-1']);
        $self->{property}->{personal}->{lastHeartBeat} = time() + 6;
 }
 
@@ -274,7 +270,7 @@ method joinRoom(Int $intRoom, Int $intX, Int $intY) {
        $self->removePlayer();  		
 
        if ($intRoom > 899) {
-           return $self->sendXT('jg', '-1', $intRoom);
+           return $self->sendXT(['jg', '-1', $intRoom]);
        } elsif ($self->getRoomCount() >= $self->{parent}->{modules}->{crumbs}->{roomCrumbs}->{$intRoom}->{limit}) {
            return $self->sendError(210);
        } elsif ($intRoom eq 323 && !$self->{property}->{epf}->{isEPF}) {
@@ -303,7 +299,7 @@ method addItem(Int $intItem) {
        push(@{$self->{inventory}}, $intItem);
        $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'items', join('%', @{$self->{inventory}}) , 'ID', $self->{property}->{personal}->{userID});
        $self->updateCoins($self->{property}->{personal}->{coins} - $self->{parent}->{modules}->{crumbs}->{itemCrumbs}->{$intItem}->{cost});
-       $self->sendXT('ai', '-1', $intItem, $self->{property}->{personal}->{coins});
+       $self->sendXT(['ai', '-1', $intItem, $self->{property}->{personal}->{coins}]);
 }
 
 method updateEPF(Bool $blnEpf) {
@@ -314,14 +310,14 @@ method updateEPF(Bool $blnEpf) {
 method handleBuddyOnline {
        foreach my $intBudID (%{$self->{buddies}}) {
           my $objPlayer = $self->getClientByID($intBudID);
-          $objPlayer->sendXT('bon', '-1', $self->{property}->{personal}->{userID});
+          $objPlayer->sendXT(['bon', '-1', $self->{property}->{personal}->{userID}]);
        }
 }
 
 method handleBuddyOffline {
        foreach my $intBudID (%{$self->{buddies}}) {
           my $objPlayer = $self->getClientByID($intBudID);
-          $objPlayer->sendXT('bof', '-1', $self->{property}->{personal}->{userID});
+          $objPlayer->sendXT(['bof', '-1', $self->{property}->{personal}->{userID}]);
        }
 }
 
@@ -356,7 +352,7 @@ method getOnline(Int $intPID) {
 method sendEarnedStamps {
        my $arrInfo = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT `stamps` FROM $self->{parent}->{dbConfig}->{tables}->{stamp} WHERE `ID` = '$self->{property}->{personal}->{userID}'");
        my $strStamps = $arrInfo->{stamps};
-       $self->sendXT('gps', '-1', $self->{property}->{personal}->{userID}, $strStamps);
+       $self->sendXT(['gps', '-1', $self->{property}->{personal}->{userID}, $strStamps]);
 }
 
 method addIgloo(Int $intIgloo) {
@@ -372,7 +368,7 @@ method addIgloo(Int $intIgloo) {
        push(@{$self->{ownedIgloos}}, $intIgloo); 
        $self->updateIglooInventory(join('|', @{$self->{ownedIgloos}}));
        $self->updateCoins($self->{property}->{personal}->{coins} - $self->{parent}->{modules}->{crumbs}->{iglooCrumbs}->{$intIgloo}->{cost});
-       $self->sendXT('au', '-1', $intIgloo, $self->{property}->{personal}->{coins});
+       $self->sendXT(['au', '-1', $intIgloo, $self->{property}->{personal}->{coins}]);
 }
 
 method addFurniture(Int $intFurn) {
@@ -386,7 +382,7 @@ method addFurniture(Int $intFurn) {
        push(@{$self->{ownedFurns}}, $intFurn); 
        $self->updateFurnInventory(join('%', @{$self->{ownedFurns}}));
        $self->updateCoins($self->{property}->{personal}->{coins} - $self->{parent}->{modules}->{crumbs}->{furnitureCrumbs}->{$intFurn}->{cost});
-       $self->sendXT('af', '-1', $intFurn, $self->{property}->{personal}->{coins});
+       $self->sendXT(['af', '-1', $intFurn, $self->{property}->{personal}->{coins}]);
 }
 
 method openIgloo {
@@ -414,17 +410,17 @@ method updateFurniture(Str $strFurn) {
 
 method updateIgloo(Int $intIgloo) {
        $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{igloo}, 'igloo', $intIgloo, 'ID', $self->{property}->{personal}->{userID});
-       $self->sendXT('ao', '-1', $intIgloo, $self->{property}->{personal}->{coins});
+       $self->sendXT(['ao', '-1', $intIgloo, $self->{property}->{personal}->{coins}]);
 }
 
 method updateFloor(Int $intFloor) {
        $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{igloo}, 'floor', $intFloor, 'ID', $self->{property}->{personal}->{userID});
-       $self->sendXT('ag', '-1', $intFloor, $self->{property}->{personal}->{coins});
+       $self->sendXT(['ag', '-1', $intFloor, $self->{property}->{personal}->{coins}]);
 }
 
 method updateMusic(Int $intMusic) {
        $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{igloo}, 'music', $intMusic, 'ID', $self->{property}->{personal}->{userID});
-       $self->sendXT('um', '-1', $intMusic);
+       $self->sendXT(['um', '-1', $intMusic]);
 }
 
 method botSay(Str $strMsg) {

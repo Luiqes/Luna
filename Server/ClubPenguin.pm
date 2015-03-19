@@ -231,7 +231,7 @@ method continueLogin($strName, $arrInfo, $objClient) {
            $objClient->{property}->{personal}->{isAuth} = 1;
            $objClient->updateIP($objClient->{property}->{personal}->{ipAddr});
            $objClient->loadDetails();
-           $objClient->sendXT('l', '-1');
+           $objClient->sendXT(['l', '-1']);
            $objClient->handleBuddyOnline();
        }
 }
@@ -296,19 +296,19 @@ method handleRedemptionJoinServer(\@arrData, $objClient) {
          push(@arrValues, $intVal);
        }
        my $intStr = join(',', @arrValues);
-       $objClient->sendXT('rjs', $arrData[4], $intStr, 0);	             
+       $objClient->sendXT(['rjs', $arrData[4], $intStr, 0]);	             
 }
 
 method handleRedemptionBookQuestion(\@arrData, $objClient) {
        my $intPage = $self->{modules}->{crypt}->generateInt(1, 80);
        my $intLine = $self->{modules}->{crypt}->generateInt(1, 50);
        my $intWord = $self->{modules}->{crypt}->generateInt(1, 25);
-       $objClient->sendXT('rgbq', $arrData[4], $arrData[5], $intPage, $intLine, $intWord);
+       $objClient->sendXT(['rgbq', $arrData[4], $arrData[5], $intPage, $intLine, $intWord]);
 }
 
 method handleRedemptionSendBookAnswer(\@arrData, $objClient) {
        my $intCoins = $arrData[5];
-       $objClient->sendXT('rsba', $arrData[4] , $intCoins);
+       $objClient->sendXT(['rsba', $arrData[4] , $intCoins]);
        $objClient->updateCoins($objClient->{property}->{personal}->{coins} + $intCoins);		
 }
 
@@ -332,7 +332,7 @@ method handleRedemptionSendCode(\@arrData, $objClient) {
        if (is_LsubsetR([\@arrItems, \@arrExisting])) {
            return $objClient->sendError(20721);
        }
-       $objClient->sendXT('rsc', $arrData[4], 'CAMPAIGN', $strItems, $intCoins);  
+       $objClient->sendXT(['rsc', $arrData[4], 'CAMPAIGN', $strItems, $intCoins]);  
        foreach my $intItem (@arrItems) {
           $objClient->addItem($intItem);
           $objClient->updateCoins($objClient->{property}->{personal}->{coins} - $intCoins);
@@ -358,7 +358,7 @@ method handleRedemptionSendGoldenCode(\@arrData, $objClient) {
        if (is_LsubsetR([\@arrItems, \@arrExisting])) {
            return $objClient->sendError(20721);
        }
-       $objClient->sendXT('rsgc', $arrData[4], 'GOLDEN', $strItems);  
+       $objClient->sendXT(['rsgc', $arrData[4], 'GOLDEN', $strItems]);  
        foreach my $intItem (@arrItems) {
           $objClient->addItem($intItem);
        }

@@ -106,7 +106,7 @@ method resetWaddle($intWaddle) {
 
 method onClearOut($intWaddle) {
        foreach my $objClient (values %{$self->{waddles}->{$intWaddle}->{clients}}) {		
-          $objClient->sendXT('uw', '-1', $intWaddle, $objClient->{property}->{games}->{seatID});
+          $objClient->sendXT(['uw', '-1', $intWaddle, $objClient->{property}->{games}->{seatID}]);
        }
        $self->resetWaddle($intWaddle);
 }

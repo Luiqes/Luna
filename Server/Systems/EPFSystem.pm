@@ -31,35 +31,35 @@ method handleEPFSystem($strData, $objClient) {
 
 method handleEPFAddItem(\@arrData, $objClient) {
        my $intItem = $arrData[5];
-       $objClient->sendXT('epfai', $arrData[4], $intItem);
+       $objClient->sendXT(['epfai', $arrData[4], $intItem]);
        $objClient->addItem($intItem);
        $objClient->updateMedals();
 }
 
 method handleEPFGetAgent(\@arrData, $objClient) {
-	      $objClient->sendXT('epfga', $arrData[4], $objClient->{property}->{epf}->{isEPF});
+	      $objClient->sendXT(['epfga', $arrData[4], $objClient->{property}->{epf}->{isEPF}]);
 }
 
 method handleEPFGetRevision(\@arrData, $objClient) {
-	      $objClient->sendXT('epfgr', $arrData[4], $objClient->{property}->{epf}->{medalsUsed}, $objClient->{property}->{epf}->{medalsUnused});
+	      $objClient->sendXT(['epfgr', $arrData[4], $objClient->{property}->{epf}->{medalsUsed}, $objClient->{property}->{epf}->{medalsUnused}]);
 }
 
 method handleEPFGetFieldOPStatus(\@arrData, $objClient) {
-	      $objClient->sendXT('epfgf', $arrData[4], $objClient->{property}->{epf}->{fieldOPStatus});
+	      $objClient->sendXT(['epfgf', $arrData[4], $objClient->{property}->{epf}->{fieldOPStatus}]);
 }
 
 method handleEPFSetFieldOPStatus(\@arrData, $objClient) {
        $objClient->{property}->{epf}->{fieldOPStatus} ? $objClient->updateOPStat(0) : $objClient->updateOPStat(1);
-       $objClient->sendXT('epfsf', $arrData[4], $objClient->{property}->{epf}->{fieldOPStatus});
+       $objClient->sendXT([('epfsf', $arrData[4], $objClient->{property}->{epf}->{fieldOPStatus}]);
 }
 
 method handleEPFSetAgent(\@arrData, $objClient) {
-       $objClient->sendXT('epfsa', $arrData[4], $objClient->{property}->{epf}->{isEPF});
+       $objClient->sendXT(['epfsa', $arrData[4], $objClient->{property}->{epf}->{isEPF}]);
 }
 
 method handleEPFGetMessage(\@arrData, $objClient) {
        my @arrInfo = ('Thanks for using Luna', time(), 15);
-       $objClient->sendXT('epfgm', $arrData[4], $objClient->{property}->{personal}->{userID}, join('|', @arrInfo));
+       $objClient->sendXT(['epfgm', $arrData[4], $objClient->{property}->{personal}->{userID}, join('|', @arrInfo)]);
 }
 
 1;

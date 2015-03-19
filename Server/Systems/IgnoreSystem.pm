@@ -35,7 +35,7 @@ method handleAddIgnore(\@arrData, $objClient) {
        return if (!int($intPID) && exists($objClient->{ignored}->{$intPID}));
        $objClient->{ignored}->{$intPID} = $objClient->{property}->{personal}->{username};
        $objClient->updateIgnore(join(',', keys %{$objClient->{ignored}}), $objClient->{property}->{personal}->{userID});
-       $objClient->sendXT('an', $objClient->{property}->{room}->{roomID}, $intPID);
+       $objClient->sendXT(['an', $objClient->{property}->{room}->{roomID}, $intPID]);
 }
 
 method handleRemoveIgnored(\@arrData, $objClient) {
@@ -43,7 +43,7 @@ method handleRemoveIgnored(\@arrData, $objClient) {
        return if (!int($intPID) && !exists($objClient->{ignored}->{$intPID}));
        delete($objClient->{ignored}->{$intPID});
        $objClient->updateIgnore(join(',', keys %{$objClient->{ignored}}), $objClient->{property}->{personal}->{userID});
-       $objClient->sendXT('rn', $objClient->{property}->{room}->{roomID}, $intPID);
+       $objClient->sendXT(['rn', $objClient->{property}->{room}->{roomID}, $intPID]);
 }
 
 method handleFetchIgnored($objClient) {

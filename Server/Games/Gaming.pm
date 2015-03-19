@@ -97,11 +97,11 @@ method handleGameLeave($strData, $objClient) {
        switch ($objClient->{property}->{room}->{roomID}) {
                case (951) {
                      if (exists($self->{child}->{gaming}->{manager}->{types}->{jitsu}->{matches}->{$objClient->{property}->{games}->{matchID}})) {
-                         $self->{child}->{gaming}->{manager}->{types}->{jitsu}->{matches}->{$objClient->{property}->{games}->{matchID}}->{firstPlayer}->sendXT('cjsi', '-1', 0, 10, 2);
-                         $self->{child}->{gaming}->{manager}->{types}->{jitsu}->{matches}->{$objClient->{property}->{games}->{matchID}}->{firstPlayer}->sendXT('cz', '-1', $objClient->{property}->{personal}->{username});
+                         $self->{child}->{gaming}->{manager}->{types}->{jitsu}->{matches}->{$objClient->{property}->{games}->{matchID}}->{firstPlayer}->sendXT(['cjsi', '-1', 0, 10, 2]);
+                         $self->{child}->{gaming}->{manager}->{types}->{jitsu}->{matches}->{$objClient->{property}->{games}->{matchID}}->{firstPlayer}->sendXT(['cz', '-1', $objClient->{property}->{personal}->{username}]);
                          if (!$self->{child}->{gaming}->{manager}->{types}->{jitsu}->{matches}->{$objClient->{property}->{games}->{matchID}}->{firstPlayer}->{property}->{games}->{isSensei}) {
-                             $self->{child}->{gaming}->{manager}->{types}->{jitsu}->{matches}->{$objClient->{property}->{games}->{matchID}}->{secondPlayer}->sendXT('cjsi', '-1', 0, 10, 2);
-                             $self->{child}->{gaming}->{manager}->{types}->{jitsu}->{matches}->{$objClient->{property}->{games}->{matchID}}->{secondPlayer}->sendXT('cz', '-1', $objClient->{property}->{personal}->{username});
+                             $self->{child}->{gaming}->{manager}->{types}->{jitsu}->{matches}->{$objClient->{property}->{games}->{matchID}}->{secondPlayer}->sendXT(['cjsi', '-1', 0, 10, 2]);
+                             $self->{child}->{gaming}->{manager}->{types}->{jitsu}->{matches}->{$objClient->{property}->{games}->{matchID}}->{secondPlayer}->sendXT(['cz', '-1', $objClient->{property}->{personal}->{username}]);
 		  	  	 			              }
                          $self->{child}->{gaming}->{manager}->{types}->{jitsu}->{matches}->{$objClient->{property}->{games}->{matchID}}->{firstPlayer}->{property}->{games}->{isSensei} = 0;
 		  	  	 	            }
@@ -110,7 +110,7 @@ method handleGameLeave($strData, $objClient) {
                      return if (!defined($objClient->{property}->{games}->{tableID}));
                      foreach my $objPlayer ($self->{child}->{gaming}->{tables}->{benches}->{$objClient->{property}->{games}->{tableID}}->{clients}) {
                         if ($objPlayer->{property}->{personal}->{userID} ne $objClient->{property}->{personal}->{userID}) {
-                            $objPlayer->sendXT('cz', '-1', $objClient->{property}->{personal}->{username});
+                            $objPlayer->sendXT(['cz', '-1', $objClient->{property}->{personal}->{username}]);
                             $objPlayer->{property}->{games}->{tableID} = undef;
                         }
                      }          

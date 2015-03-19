@@ -17,7 +17,7 @@ method handleMiningSystem($strData, $objClient) {
        if ($strCmd eq 'r#cdu') {
            my $intCoins = $self->{child}->{modules}->{crypt}->generateInt(1, 100);
            $objClient->setCoins($objClient->{property}->{personal}->{coins} + $intCoins);
-           $objClient->sendXT('cdu', $arrData[4], $intCoins, $objClient->{property}->{personal}->{coins});
+           $objClient->sendXT(['cdu', $arrData[4], $intCoins, $objClient->{property}->{personal}->{coins}]);
        }
 }
 

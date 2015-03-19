@@ -49,12 +49,12 @@ method tryToMatchUp($objClient) {
 			       if (!exists(%{$self->{matches}->{$intMatch}})) {
 			           $intMatch = $arrMatches[rand(@arrMatches)];
 			       } 
-			       $objClient->sendXT('tmm', 0, '-1', $objClient->{property}->{personal}->{username}, $objPlayer->{property}->{personal}->{username});
-			       $objClient->sendXT('scard', 0, 998, $intMatch, 2);
+			       $objClient->sendXT(['tmm', 0, '-1', $objClient->{property}->{personal}->{username}, $objPlayer->{property}->{personal}->{username}]);
+			       $objClient->sendXT(['scard', 0, 998, $intMatch, 2]);
 			       $objClient->{property}->{games}->{matchID} = $intMatch;
 			       $objClient->{property}->{games}->{seatID} = 0;
-			       $objPlayer->sendXT('tmm', 0, '-1', $objPlayer->{property}->{personal}->{username}, $objClient->{property}->{personal}->{username});
-			       $objPlayer->sendXT('scard', 0, 998  $intMatch, 2);
+			       $objPlayer->sendXT(['tmm', 0, '-1', $objPlayer->{property}->{personal}->{username}, $objClient->{property}->{personal}->{username}]);
+			       $objPlayer->sendXT(['scard', 0, 998  $intMatch, 2]);
            $objPlayer->{property}->{games}->{matchID} = $intMatch;
            $objPlayer->{property}->{games}->{seatID} = 1;			
            %{$self->{matches}->{$intMatch}} = (firstPlayer => $objClient, secondPlayer => $objPlayer, max => 2, isReady => 0, tmp => {});			
@@ -69,7 +69,7 @@ method playWithSensei($objClient) {
        if (exists(%{$self->{matches}->{$intMatch}})) {
            $intMatch = $arrMatches[rand(@arrMatches)];
        }
-       $objClient->sendXT('scard', 0, 998, $intMatch, 1);
+       $objClient->sendXT(['scard', 0, 998, $intMatch, 1]);
        $objClient->{property}->{games}->{matchID} = $intMatch;
        $objClient->{property}->{games}->{seatID} = 0;	
        %{$self->{matches}->{$intMatch}} = (firstPlayer => $objClient, secondPlayer => undef, max => 1, tmp => {});
@@ -99,11 +99,11 @@ method battleSensei($objClient, $intCard, $arrCards, $strBelt) {
        if ($self->checkByElement($objSensei->{attribute}, $arrCards->{attribute} != $objSensei->{attribute}) {
 				      $objSensei = $arrMasters[rand(@arrMasters)];
        }
-       $objClient->sendXT('zm', $objClient->{property}->{games}->{matchID}, 'pick', 0, $objSensei);
+       $objClient->sendXT(['zm', $objClient->{property}->{games}->{matchID}, 'pick', 0, $objSensei]);
        if ($objSensei->{power} > 0) {
-           $self->getPowerCard($objSensei->{power}) ? $objClient->sendXT('zm', $objClient->{property}->{games}->{matchID}, 'power', 0, 1, $objSensei->{power}) : $objClient->sendXT('zm', $objClient->{property}->{games}->{matchID}, 'power', 0, 1, $objSensei->{power});				
+           $self->getPowerCard($objSensei->{power}) ? $objClient->sendXT(['zm', $objClient->{property}->{games}->{matchID}, 'power', 0, 1, $objSensei->{power}]) : $objClient->sendXT(['zm', $objClient->{property}->{games}->{matchID}, 'power', 0, 1, $objSensei->{power}]);				
        }
-       $objClient->sendXT('zm', $objClient->{property}->{games}->{matchID}, 'judge', 0, '-1');
+       $objClient->sendXT(['zm', $objClient->{property}->{games}->{matchID}, 'judge', 0, '-1']);
 }
 
 method addCard($intCard, $objClient, $arrCards) {
