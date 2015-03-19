@@ -40,4 +40,15 @@ method updateTable($resTable, $resSetCol, $resSetVal, $resWhereCol, $resWhereVal
        return $strQuery;
 }
 
+method insertData($table, \@columns, \@values) {
+       my $fields = join("`, `", @columns);
+       my $statement = $self->{mysql}->prepare("INSERT INTO $table ($fields) VALUES " . join(", ", ("(?, ?, ?)") x scalar(@columns));
+       $statement->execute(@values);
+       return $statement->{mysql_insertid};
+}
+
+method deleteData(Defined $table, Defined $where, Defined $whereValue, $andKey, $andValue, $andClause = 0) {
+       return $andClause ? $self->execQuery("DELETE FROM $table WHERE `$where` = '$whereValue' AND `$andKey` = '$andValue'") : $self->execQuery("DELETE FROM $table WHERE `$where` = '$whereValue'");
+}
+
 1;
