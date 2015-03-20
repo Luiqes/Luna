@@ -166,7 +166,7 @@ method getClientByID(Int $intPID) {
 
 method getClientByName(Str $strName) {
        foreach my $objClient (values %{$self->{parent}->{modules}->{base}->{clients}}) {
-          if (lc($objClient->{property}->{personal}->{userID}) eq lc($strName)) {
+          if (lc($objClient->{property}->{personal}->{username}) eq lc($strName)) {
               return $objClient;
           }
 	      }
@@ -280,7 +280,7 @@ method joinRoom(Int $intRoom, Int $intX, Int $intY) {
 
 	      my $strData = '%xt%jr%-1%'  . $intRoom . '%' . $self->buildClientString() . '%';
 	      my $objClient = $self->getClientByName($self->{property}->{personal}->{username});       
-	      if ($objClient->{property}->{room}->{roomID} eq $self->{property}->{room}->{roomID}) {
+       if ($objClient->{property}->{room}->{roomID} eq $self->{property}->{room}->{roomID}) {
            $strData .= $objClient->buildClientString() . '%';
        }
        $self->write($strData);
