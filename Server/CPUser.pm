@@ -234,7 +234,7 @@ method getLatestRevision {
 
 method getPlayer(Int $intPID) {
        my $dbInfo = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT `ID`, `nickname`, `bitMask`, `colour`, `face`, `body`, `feet`, `hand`, `neck`, `head`, `flag`, `photo`, `rank` FROM $self->{parent}->{dbConfig}->{tables}->{main} WHERE `ID` = '$intPID'");
-       return if (!$arrInfo);
+       return if (!$dbInfo);
        my @arrDetails = ($dbInfo->{ID}, $dbInfo->{nickname}, $dbInfo->{bitMask}, $dbInfo->{colour}, $dbInfo->{head}, $dbInfo->{face}, $dbInfo->{neck}, $dbInfo->{body}, $dbInfo->{hand}, $dbInfo->{feet}, $dbInfo->{flag}, $dbInfo->{photo}, $dbInfo->{rank} * 146);
        $self->sendXT(['gp', '-1', join('|', @arrDetails)]);
 }
