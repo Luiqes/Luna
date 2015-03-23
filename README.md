@@ -18,7 +18,7 @@ Club Penguin Server Emulator - AS2 Protocol
  <li> Install all the Perl modules from the list below</li>
  <li> Import the <b>Database.sql</b> from the <b>SQL</b> folder using <b>Phpmyadmin/Adminer</b></li>
  <li> Setup the <b>Register</b> and create an account</li>
- <li> Edit </b>Config.pl</b> from the <b>Configuration</b> folder</li>
+ <li> Edit <b>Config.pl</b> from the <b>Configuration</b> folder</li>
  <li> Execute <b>Run.pm</b></li>
 </ul>
 
