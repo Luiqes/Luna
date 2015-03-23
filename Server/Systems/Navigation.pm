@@ -30,7 +30,7 @@ method handleJoinServer($strData, $objClient) {
        $objClient->sendXT(['js', '-1', 0, $objClient->{isEPF}, $objClient->{isStaff}]);
        $objClient->sendXT(['lp', '-1', $objClient->buildClientString, $objClient->{coins}, 0, 1440, 100, $objClient->{age}, 4, $objClient->{age}, 7]);
        $objClient->sendXT(['gps', '-1', $objClient->{ID}, join('|', @{$objClient->{stamps}}]);
-       $objClient->joinRoom($self->{child}->generateRoom);     
+       $objClient->joinRoom($self->generateRoom);     
 }
 
 method handleJoinGame($strData, $objClient) {
