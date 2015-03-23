@@ -23,7 +23,10 @@ method handleJoinRoom($strData, $objClient) {
 method handleJoinServer($strData, $objClient) {
        my @arrData = split('%', $strData);
        my $loginKey = $arrData[6];
-       if ($loginKey eq '') {
+       my $dbInfo = $self->{modules}->{mysql}->fetchColumns("SELECT `loginKey`, `invalidLogins` FROM users WHERE `ID` = '$objClient->{ID}'");
+       if ($loginKey ne '' || $loginKey ne $dbInfo->{loginKey}) {
+           $objClient->sendError(101);
+           $objClient->updateInvalidLogins($dbInfo->{invalidLogins} + 1, $objClient->{username});
            return $self->{modules}->{base}->removeClientBySock($objClient->{sock});
        }
        $objClient->updateKey('', $objClient->{username});
