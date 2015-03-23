@@ -1,7 +1,7 @@
+package Logger;
+
 use strict;
 use warnings;
-
-package Logger;
 
 use Method::Signatures;
 use feature qw(say);
@@ -21,7 +21,7 @@ method new {
 }
 
 method output($strMsg, $strType) {
-       my $strTime = strftime('%I:%M:%S[%p]', localtime());
+       my $strTime = strftime('%I:%M:%S[%p]', localtime);
        say '[' . $strTime . ']' . '[' . uc($strType) . '] =>> ' . $strMsg;
 }
 
