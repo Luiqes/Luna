@@ -1,79 +1,65 @@
+package CPUser;
+
 use strict;
 use warnings;
-
-package CPUser;
 
 use Method::Signatures;
 use HTTP::Date qw(str2time);
 use Math::Round qw(round);
-use List::Util qw(first);
 use HTML::Entities;
+use Switch;
 
 method new($resParent, $resSock) {
        my $obj = bless {}, $self;
        $obj->{parent} = $resParent;
        $obj->{sock} = $resSock;
-       $obj->{property} = {
-               personal => {
-                        username => '',             
-                        userID => 0,
-                        ipAddr => '',
-                        loginKey => '',
-                        coins => 0,
-                        rank => 1,
-                        age => 0,
-                        isMod => 0,
-                        isMuted => 0,
-                        isBanned => '',
-                        isStaff => 0,
-                        isAdmin => 0,
-                        isAuth => 0,
-                        language => 1,
-                        lastHeartBeat => 0, 
-                        lastCommand => 0,       
-                        lastMessage => '',
-                        banCount => 0,
-                        isNewMail => 1
-               },
-               clothing => {
-                        colour => 0,
-                        head => 0,
-                        face => 0,
-                        neck => 0,
-                        body => 0,
-                        hand => 0,
-                        feet => 0,
-                        flag => 0,
-                        photo => 0
-               },              
-               room => {
-                    frame => 0,
-                    xpos => 100,
-                    ypos => 100,
-                    roomID => 0
-               },
-               epf => {
-                   isEPF => 0,
-                   medalsUsed => 50,
-                   medalsUnused => 100,
-                   fieldOPStatus => 0
-               },
-               games => {
-                     gamePuck => '',
-                     waddleID => '',
-                     matchID => '',
-                     tableID => '',
-                     seatID => '',
-                     isSled => 0,
-                     isSensei => 0
-               }
-       };
-       $obj->{buddies} = ();
-       $obj->{ignored} = ();
-       $obj->{inventory} = ();
-       $obj->{ownedIgloos} = ();
-       $obj->{ownedFurns} = ();
-       %{$obj->{buddyRequests}} = ();
+       $obj->{username} = '';            
+       $obj->{ID} = 0;
+       $obj->{ipAddr} = '';
+       $obj->{loginKey} = '';
+       $obj->{coins} = 0;
+       $obj->{rank} = 1;
+       $obj->{age} = 0;
+       $obj->{active} = 0;
+       $obj->{isMuted} = 0;
+       $obj->{isBanned} = 0;
+       $obj->{isStaff} = 0;
+       $obj->{isAdmin} = 0;
+       $obj->{isAuth} = 0;
+       $obj->{bitMask} = 1;
+       $obj->{banCount} = 0;
+       $obj->{invalidLogins} = 0;
+       $obj->{isNewMail} = 1;
+       $obj->{colour} = 0;
+       $obj->{head} = 0;
+       $obj->{face} = 0;
+       $obj->{neck} = 0;
+       $obj->{body} = 0;
+       $obj->{hand} = 0;
+       $obj->{feet} = 0;
+       $obj->{flag} = 0;
+       $obj->{photo} = 0;
+       $obj->{isEPF} = 0;
+       $obj->{epfPoints} = 0;
+       $obj->{totalEPFPoints} = 0;
+       $obj->{fieldOPStatus} = 0;
+       $obj->{room} = 0;
+       $obj->{frame} = 0;
+       $obj->{xpos} = 100;
+       $obj->{ypos} = 100;
+       $obj->{igloo} = 0;
+       $obj->{floor} = 0;
+       $obj->{music} = 0;
+       $obj->{furniture} = '';
+       $obj->{cover} = '';
+       $obj->{buddies} = {};
+       $obj->{ignored} = {};
+       $obj->{inventory} = [];
+       $obj->{ownedIgloos} = [];
+       $obj->{stamps} = [];
+       $obj->{restamps} = [];
+       $obj->{ownedFurns} = {};
+       $obj->{buddyRequests} = {};
        return $obj;
 }
 
@@ -84,7 +70,7 @@ method sendXT(\@arrArgs) {
 }
 
 method write($strData) {
-       if ($self->{sock}->connected()) {
+       if ($self->{sock}->connected) {
            send($self->{sock}, $strData . chr(0), 0);
        } elsif ($self->{parent}->{servConfig}->{debugging}) {
            $self->{parent}->{modules}->{logger}->output('Packet Sent: ' . $strData, Logger::LEVELS->{dbg});        
@@ -92,83 +78,108 @@ method write($strData) {
 }
 
 method sendRoom($strData) {
-       foreach my $objClient (values %{$self->{parent}->{modules}->{base}->{clients}}) {
-          if ($objClient->{property}->{room}->{roomID} == $self->{property}->{room}->{roomID}) {
-              $objClient->write($strData);
-          }
+       foreach (values %{$self->{parent}->{clients}}) {
+                if ($_->{room} == $self->{room}) {
+                    $_->write($strData);
+                }
        }
 }
 
 method loadDetails {
-       my $arrInfo = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT * FROM $self->{parent}->{dbConfig}->{tables}->{main} WHERE `ID` = '$self->{property}->{personal}->{userID}'");
-       my $arrIglooInfo = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT * FROM $self->{parent}->{dbConfig}->{tables}->{igloo} WHERE `ID` = '$self->{property}->{personal}->{userID}'");
-       $self->{property}->{personal}->{username} = $arrInfo->{username};
-       $self->{property}->{clothing}->{colour} = $arrInfo->{colour};
-       $self->{property}->{clothing}->{head} = $arrInfo->{head};
-       $self->{property}->{clothing}->{face} = $arrInfo->{face};
-       $self->{property}->{clothing}->{neck} = $arrInfo->{neck};
-       $self->{property}->{clothing}->{body} = $arrInfo->{body};
-       $self->{property}->{clothing}->{hand} = $arrInfo->{hand};
-       $self->{property}->{clothing}->{feet} = $arrInfo->{feet};
-       $self->{property}->{clothing}->{flag} = $arrInfo->{flag};
-       $self->{property}->{clothing}->{photo} = $arrInfo->{photo};
-       $self->{property}->{personal}->{coins} = $arrInfo->{coins};
-       $self->{property}->{personal}->{age} = round((time() - str2time($arrInfo->{age})) / 86400);
-       $self->{property}->{personal}->{rank} = $arrInfo->{rank};
-       $self->{property}->{personal}->{language} = $arrInfo->{bitMask};        
-       $self->{property}->{personal}->{isStaff} = $arrInfo->{isStaff};
-       $self->{property}->{personal}->{isAdmin} = $arrInfo->{isAdmin};
-       $self->{property}->{personal}->{isMuted} = $arrInfo->{isMuted};
-       $self->{property}->{personal}->{isBanned} = $arrInfo->{isBanned};
-       $self->{property}->{personal}->{banCount} = $arrInfo->{banCount};
-       $self->{property}->{personal}->{isNewMail} = $arrInfo->{isNewMail};             
-       $self->{property}->{epf}->{isEPF} = $arrInfo->{isEPF};
-       $self->{property}->{epf}->{fieldOPStatus} = $arrInfo->{fieldOPStatus};
-       $self->{property}->{epf}->{medalsUsed} = $arrInfo->{medalsUsed};
-       $self->{property}->{epf}->{medalsUnused} = $arrInfo->{medalsUnused};
-       %{$self->{buddies}} = split(',', $arrInfo->{buddies});
-       %{$self->{ignored}} = split(',', $arrInfo->{ignored});
-       @{$self->{inventory}} = split('%', $arrInfo->{items});      
-       @{$self->{ownedIgloos}} = split('\\|', $arrIglooInfo->{ownedIgloos});
-       @{$self->{ownedFurns}} = split('%', $arrIglooInfo->{ownedFurns});
+       my $arrInfo = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT * FROM users WHERE `ID` = '$self->{ID}'"); 
+       while (my ($key, $value) = each(%{$arrInfo})) {
+              switch ($key) {
+                      case ('age') {
+                            $self->{age} = round((time - str2time($value)) / 86400);
+                      }
+                      case ('buddies') {
+                            my @buddies = split(',', $value);
+                            foreach (@buddies) {
+                                     my ($userID, $username) = split('|', $_);
+                                     $self->{buddies}->{$userID} = $username;
+                            }
+                      }
+                      case ('ignored') {
+                            my @ignored = split(',', $value);
+                            foreach (@ignored) {
+                                     my ($userID, $username) = split('|', $_);
+                                     $self->{ignored}->{$userID} = $username;
+                            }
+                      }
+                      case ('inventory') {
+                            my @items = split('%', $value);
+                            foreach (@items) {
+                                     push(@{$self->{inventory}}, $_);
+                            }
+                      }
+                      case ('stamps') {
+                            my @stamps = split('\\|', $value);
+                            foreach (@stamps) {
+                                     push(@{$self->{stamps}}, $_);
+                            }
+                      }
+                      case ('restamps') {
+                            my @restamps = split('\\|', $value);
+                            foreach (@restamps) {
+                                     push(@{$self->{restamps}}, $_);
+                            }
+                      }
+                      case ('ownedIgloos') {
+                            my @igloos = split('\\|', $value);
+                            foreach (@igloos) {
+                                     push(@{$self->{ownedIgloos}}, $_);
+                            }
+                      }
+                      case ('ownedFurns') {
+                            my @furnitures = split(',', $value);
+                            while (my ($furnID, $furnQuantity) = each(@ignored)) {
+                                   $self->{ownedFurns}->{$furnID} = $furnQuantity;
+                            }
+                      } else {
+                            $self->{$key} = $value;
+                      }
+              }
+       }   
 }
 
 method buildClientString {
        my @arrInfo = (
-                   $self->{property}->{personal}->{userID}, 
-                   $self->{property}->{personal}->{username},
-                   $self->{property}->{personal}->{language},
-                   $self->{property}->{clothing}->{colour}, 
-                   $self->{property}->{clothing}->{head}, 
-                   $self->{property}->{clothing}->{face}, 
-                   $self->{property}->{clothing}->{neck}, 
-                   $self->{property}->{clothing}->{body}, 
-                   $self->{property}->{clothing}->{hand}, 
-                   $self->{property}->{clothing}->{feet}, 
-                   $self->{property}->{clothing}->{flag}, 
-                   $self->{property}->{clothing}->{photo}, 
-                   $self->{property}->{room}->{xpos}, 
-                   $self->{property}->{room}->{ypos}, 
-                   $self->{property}->{room}->{frame}, 1, 
-                   $self->{property}->{personal}->{rank} * 146,                
+                   $self->{ID}, 
+                   $self->{username},
+                   $self->{bitMask},
+                   $self->{colour}, 
+                   $self->{head}, 
+                   $self->{face}, 
+                   $self->{neck}, 
+                   $self->{body}, 
+                   $self->{hand}, 
+                   $self->{feet}, 
+                   $self->{flag}, 
+                   $self->{photo}, 
+                   $self->{xpos}, 
+                   $self->{ypos}, 
+                   $self->{frame}, 1, 
+                   $self->{rank} * 146,                
        );
        my $strInfo = join('|', @arrInfo);
        return $strInfo;
 }
 
-method getClientByID(Int $intPID) {
-       foreach my $objClient (values %{$self->{parent}->{modules}->{base}->{clients}}) {
-          if ($objClient->{property}->{personal}->{userID} eq $intPID) {
-              return $objClient;
-          }
+method getClientByID($intPID) {
+       return if (!int($intPID));
+       foreach (values %{$self->{parent}->{clients}}) {
+                if ($_->{ID} eq $intPID) {
+                    return $_;
+                }
 	      }
 }
 
-method getClientByName(Str $strName) {
-       foreach my $objClient (values %{$self->{parent}->{modules}->{base}->{clients}}) {
-          if (lc($objClient->{property}->{personal}->{username}) eq lc($strName)) {
-              return $objClient;
-          }
+method getClientByName($strName) {
+       return if (!$strName);
+       foreach (values %{$self->{parent}->{clients}}) {
+                if (lc($_->{username}) eq lc($strName)) {
+                    return $_;
+                }
 	      }
 }
 
@@ -176,267 +187,286 @@ method sendError($intError) {
        $self->write('%xt%e%-1%' . $intError . '%');
 }
 
-method updateCoins(Int $intCoins) {
+method updateCoins($intCoins) {
+       return if (!int($intCoins));
        $self->sendXT(['zo', '-1', $intCoins]);
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'coins', $intCoins, 'ID', $self->{property}->{personal}->{userID});
-       $self->{property}->{personal}->{coins} = $intCoins;
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'coins', $intCoins, 'ID', $self->{ID});
+       $self->{coins} = $intCoins;
 }
 
-method setCoins(Int $intCoins) {
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'coins', $intCoins, 'ID', $self->{property}->{personal}->{userID});
-       $self->{property}->{personal}->{coins} = $intCoins;
+method setCoins($intCoins) {
+       return if (!int($intCoins));
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'coins', $intCoins, 'ID', $self->{ID});
+       $self->{coins} = $intCoins;
 }
 
-method updateKey(Str $strKey, Defined $strName) {
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'loginKey', $strKey, 'username', $strName);
+method updateKey($strKey, $strName) {
+       return if (!$strName);
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'loginKey', $strKey, 'username', $strName);
 }
 
-method updatePlayerCard(Str $strData, Str $strType, Int $intItem) {
-       $self->sendRoom('%xt%' . $strData . '%-1%' . $self->{property}->{personal}->{userID} . '%' . $intItem . '%');
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, $strType, $intItem, 'ID', $self->{property}->{personal}->{userID});
-       $self->{property}->{clothing}->{$strType} = $intItem;
+method updateInvalidLogins($intCount, $strName) {
+       return if (!int($intCount) && !$strName);
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'invalidLogins', $intCount, 'username', $strName);
+       if ($intCount > 3) {
+           $self->{parent}->{modules}->{mysql}->updateTable('users', 'active', 0, 'username', $strName);
+       }
 }
 
-method throwSnowball(Int $intX, Int $intY) {
-       $self->sendRoom('%xt%sb%-1%' . $self->{property}->{personal}->{userID} . '%' . $intX . '%' . $intY . '%');
+method updatePlayerCard($strData, $strType, $intItem) {
+       return if (!$strData && !$strType && !int($intItem));
+       $self->sendRoom('%xt%' . $strData . '%-1%' . $self->{ID} . '%' . $intItem . '%');
+       $self->{parent}->{modules}->{mysql}->updateTable('users', $strType, $intItem, 'ID', $self->{ID});
+       $self->{$strType} = $intItem;
 }
 
-method sendJoke(Int $intJoke) {
-       $self->sendRoom('%xt%sj%-1%' . $self->{property}->{personal}->{userID} . '%' . $intJoke . '%');
+method throwSnowball($intX, $intY) {
+       return if (!int($intX) && !int($intY));
+       $self->sendRoom('%xt%sb%-1%' . $self->{ID} . '%' . $intX . '%' . $intY . '%');
 }
 
-method sendEmote(Int $intEmote) {
-       $self->sendRoom('%xt%se%-1%' . $self->{property}->{personal}->{userID} . '%' . $intEmote . '%');
+method sendJoke($intJoke) {
+       return if (!int($intJoke));
+       $self->sendRoom('%xt%sj%-1%' . $self->{ID} . '%' . $intJoke . '%');
 }
 
-method sendTourMsg(Int $intMsg) {
-       $self->sendRoom('%xt%sg%-1%' . $self->{property}->{personal}->{userID} . '%' . $intMsg . '%');
+method sendEmote($intEmote) {
+       return if (!int($intEmote));
+       $self->sendRoom('%xt%se%-1%' . $self->{ID} . '%' . $intEmote . '%');
 }
 
-method sendSafeMsg(Int $intMsg) {
-       $self->sendRoom('%xt%ss%-1%' . $self->{property}->{personal}->{userID} . '%' . $intMsg . '%');    
+method sendTourMsg($intMsg) {
+       return if (!int($intMsg));
+       $self->sendRoom('%xt%sg%-1%' . $self->{ID} . '%' . $intMsg . '%');
 }
 
-method sendMascotMsg(Int $intMsg) {
-       $self->sendRoom('%xt%sma%-1%' . $self->{property}->{personal}->{userID} . '%' . $intMsg . '%');
+method sendSafeMsg($intMsg) {
+       return if (!int($intMsg));
+       $self->sendRoom('%xt%ss%-1%' . $self->{ID} . '%' . $intMsg . '%');    
 }
 
-method sendMessage(Str $strMsg) {
-       $strMsg = decode_entities($strMsg);
-       return if ($self->{property}->{personal}->{isMuted} && $self->{property}->{personal}->{lastMessage} eq $strMsg && length($strMsg) > 250);
-       $self->{property}->{personal}->{lastMessage} = $strMsg;
-       $self->sendRoom('%xt%sm%-1%' .  $self->{property}->{personal}->{userID} . '%' . $strMsg . '%');
+method sendMascotMsg($intMsg) {
+       return if (!int($intMsg));
+       $self->sendRoom('%xt%sma%-1%' . $self->{ID} . '%' . $intMsg . '%');
+}
+
+method sendMessage($strMsg) {
+       if (!$self->{isMuted} && $strMsg ne '') {
+           $self->sendRoom('%xt%sm%-1%' .  $self->{ID} . '%' . decode_entities($strMsg) . '%');
+       }
 }
 
 method getLatestRevision {
        $self->sendXT(['glr', '-1', 3555]);
 }
 
-method getPlayer(Int $intPID) {
-       my $dbInfo = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT `ID`, `nickname`, `bitMask`, `colour`, `face`, `body`, `feet`, `hand`, `neck`, `head`, `flag`, `photo`, `rank` FROM $self->{parent}->{dbConfig}->{tables}->{main} WHERE `ID` = '$intPID'");
-       return if (!$dbInfo);
+method getPlayer($intPID) {
+       return if (!int($intPID));
+       my $dbInfo = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT `ID`, `nickname`, `bitMask`, `colour`, `face`, `body`, `feet`, `hand`, `neck`, `head`, `flag`, `photo`, `rank` FROM users WHERE `ID` = '$intPID'");
        my @arrDetails = ($dbInfo->{ID}, $dbInfo->{nickname}, $dbInfo->{bitMask}, $dbInfo->{colour}, $dbInfo->{head}, $dbInfo->{face}, $dbInfo->{neck}, $dbInfo->{body}, $dbInfo->{hand}, $dbInfo->{feet}, $dbInfo->{flag}, $dbInfo->{photo}, $dbInfo->{rank} * 146);
-       $self->sendXT(['gp', '-1', join('|', @arrDetails)]);
+       $self->sendXT(['gp', '-1', $intPID, join('|', @arrDetails)]);
 }
 
 method sendHeartBeat {
-       return if ($self->{property}->{personal}->{lastHeartBeat} > time());
        $self->sendXT(['h', '-1']);
-       $self->{property}->{personal}->{lastHeartBeat} = time() + 6;
 }
 
-method setPosition(Int $intX, Int $intY) {
-       $self->sendRoom('%xt%sp%-1%' . $self->{property}->{personal}->{userID} . '%' . $intX . '%' . $intY . '%');
-       $self->{property}->{room}->{xpos} = $intX;
-       $self->{property}->{room}->{ypos} = $intY;
+method setPosition($intX, $intY) {
+       return if (!int($intX) && !int($intY));
+       $self->sendRoom('%xt%sp%-1%' . $self->{ID} . '%' . $intX . '%' . $intY . '%');
+       $self->{xpos} = $intX;
+       $self->{ypos} = $intY;
 }
 
-method setFrame(Int $intFrame) {
-       $self->sendRoom('%xt%sf%-1%' . $self->{property}->{personal}->{userID} . '%' . $intFrame . '%');
-       $self->{property}->{room}->{frame} = $intFrame;
+method setFrame($intFrame) {
+       return if (!int($intFrame));
+       $self->sendRoom('%xt%sf%-1%' . $self->{ID} . '%' . $intFrame . '%');
+       $self->{frame} = $intFrame;
 }
 
-method setAction(Int $intAction) {
-       $self->sendRoom('%xt%sa%-1%' . $self->{property}->{personal}->{userID} . '%' . $intAction . '%');
+method setAction($intAction) {
+       return if (!int($intAction));
+       $self->sendRoom('%xt%sa%-1%' . $self->{ID} . '%' . $intAction . '%');
 }
 
 method removePlayer {
-       $self->sendRoom('%xt%rp%-1%' . $self->{property}->{personal}->{userID} . '%');
+       $self->sendRoom('%xt%rp%-1%' . $self->{ID} . '%');
 }
 
-method joinRoom(Int $intRoom, Int $intX, Int $intY) {
-
-       $self->{property}->{room}->{roomID} = $intRoom;
-
-       $self->setPosition($intX, $intY);
-       $self->removePlayer();  		
-
-       if ($intRoom > 899) {
+method joinRoom($intRoom, $intX, $intY) {
+       return if (!int($intRoom) && !int($intX) && !int($intY));
+       if (exists($self->{parent}->{modules}->{crumbs}->{gameRoomCrumbs}->{$intRoom})) {
            return $self->sendXT(['jg', '-1', $intRoom]);
-       } elsif ($self->getRoomCount() >= $self->{parent}->{modules}->{crumbs}->{roomCrumbs}->{$intRoom}->{limit}) {
-           return $self->sendError(210);
-       } elsif ($intRoom eq 323 && !$self->{property}->{epf}->{isEPF}) {
-	          $self->updateEPF(1);
-       }	  		  
-
-	      my $strData = '%xt%jr%-1%'  . $intRoom . '%' . $self->buildClientString() . '%';
-	      my $objClient = $self->getClientByName($self->{property}->{personal}->{username});       
-       if ($objClient->{property}->{room}->{roomID} eq $self->{property}->{room}->{roomID}) {
-           $strData .= $objClient->buildClientString() . '%';
+       } elseif (exists($self->{parent}->{modules}->{crumbs}->{roomCrumbs}->{$intRoom})) {
+                 $self->{room} = $intRoom;
+                 $self->setPosition($intX, $intY);
+                 $self->removePlayer;  		
+                 if ($self->getRoomCount >= $self->{parent}->{modules}->{crumbs}->{roomCrumbs}->{$intRoom}->{limit}) {
+                     return $self->sendError(210);
+                 }
+	                my $strData = '%xt%jr%-1%'  . $intRoom . '%' . $self->buildClientString . '%';
+	                my $objClient = $self->getClientByName($self->{username});       
+                 if ($objClient->{room} eq $self->{room}) {
+                     $strData .= $objClient->buildClientString . '%';
+                 }
+                 $self->write($strData);
+                 $self->sendRoom('%xt%ap%-1%' . $self->buildClientString . '%');
        }
-       $self->write($strData);
-       $self->sendRoom('%xt%ap%-1%' . $self->buildClientString() . '%');
 }
 
-method addItem(Int $intItem) { 
-
+method addItem($intItem) { 
+       return if (!int($intItem));
        if (!exists($self->{parent}->{modules}->{crumbs}->{itemCrumbs}->{$intItem})) {
 	          return $self->sendError(402);
-       } elsif (first {$_ == $intItem} @{$self->{inventory}}) {
+       } elsif (grep /$intItem/, @{$self->{inventory}}) {
 	          return $self->sendError(400);
-       } elsif ($self->{property}->{personal}->{coins} < $self->{parent}->{modules}->{crumbs}->{itemCrumbs}->{$intItem}->{cost}) {
+       } elsif ($self->{coins} < $self->{parent}->{modules}->{crumbs}->{itemCrumbs}->{$intItem}->{cost}) {
 	          return $self->sendError(401);
        }    
-
        push(@{$self->{inventory}}, $intItem);
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'items', join('%', @{$self->{inventory}}) , 'ID', $self->{property}->{personal}->{userID});
-       $self->updateCoins($self->{property}->{personal}->{coins} - $self->{parent}->{modules}->{crumbs}->{itemCrumbs}->{$intItem}->{cost});
-       $self->sendXT(['ai', '-1', $intItem, $self->{property}->{personal}->{coins}]);
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'inventory', join('%', @{$self->{inventory}}) , 'ID', $self->{ID});
+       $self->updateCoins($self->{coins} - $self->{parent}->{modules}->{crumbs}->{itemCrumbs}->{$intItem}->{cost});
+       $self->sendXT(['ai', '-1', $intItem, $self->{coins}]);
 }
 
-method updateEPF(Bool $blnEpf) {
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'isEPF', $blnEpf, 'ID', $self->{property}->{personal}->{userID});
-       $self->{property}->{epf}->{isEPF} = $blnEpf;
+method updateEPF($blnEpf) {
+       return if (!int($blnEpf));
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'isEPF', $blnEpf, 'ID', $self->{ID});
+       $self->{isEPF} = $blnEpf;
 }
 
 method handleBuddyOnline {
-       foreach my $intBudID (%{$self->{buddies}}) {
-          my $objPlayer = $self->getClientByID($intBudID);
-          $objPlayer->sendXT(['bon', '-1', $self->{property}->{personal}->{userID}]);
+       foreach (%{$self->{buddies}}) {
+                my $objPlayer = $self->getClientByID($_);
+                $objPlayer->sendXT(['bon', '-1', $self->{ID}]);
        }
 }
 
 method handleBuddyOffline {
-       foreach my $intBudID (%{$self->{buddies}}) {
-          my $objPlayer = $self->getClientByID($intBudID);
-          $objPlayer->sendXT(['bof', '-1', $self->{property}->{personal}->{userID}]);
+       foreach (%{$self->{buddies}}) {
+                my $objPlayer = $self->getClientByID($_);
+                $objPlayer->sendXT(['bof', '-1', $self->{ID}]);
        }
 }
 
-method updateOPStat(Bool $blnStat) {
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'fieldOPStatus', $blnStat, 'ID', $self->{property}->{personal}->{userID});
-       $self->{property}->{epf}->{fieldOPStatus} = $blnStat;
+method updateOPStat($blnStat) {
+       return if (!int($blnStat));
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'fieldOPStatus', $blnStat, 'ID', $self->{ID});
+       $self->{fieldOPStatus} = $blnStat;
 }
 
-method updateMedals {
-       $self->{property}->{epf}->{medalsUsed} = $self->{property}->{epf}->{medalsUsed} + 1;
-       $self->{property}->{epf}->{medalsUnused} = $self->{property}->{epf}->{medalsUnused} - 1;
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'medalsUsed', $self->{property}->{epf}->{medalsUsed}, 'ID', $self->{property}->{personal}->{userID});
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'medalsUnused', $self->{property}->{epf}->{medalsUnused}, 'ID', $self->{property}->{personal}->{userID});
+method updateEPFPoints($intPoints) {
+       return if (!int($intPoints));
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'epfPoints', $intPoints, 'ID', $self->{ID});
+       $self->{epfPoints} = $intPoints;
 }
 
 method getRoomCount {
        my $intCount = 0;
-       foreach my $objClient (values %{$self->{parent}->{modules}->{base}->{clients}}) {
-          if ($objClient->{property}->{room}->{roomID} eq $self->{property}->{room}->{roomID}) {
-              $intCount++;
-          }
+       foreach (values %{$self->{parent}->{clients}}) {
+                if ($_->{room} eq $self->{room}) {
+                    $intCount++;
+                }
        }
        return $intCount;
 }
 
-method getOnline(Int $intPID) {
-       foreach my $objClient (values %{$self->{parent}->{modules}->{base}->{clients}}) {
-          return $objClient->{property}->{personal}->{userID} eq $intPID ? 1 : 0;
+method getOnline($intPID) {
+       return if (!int($intPID));
+       foreach (values %{$self->{parent}->{clients}}) {
+                return $_->{ID} eq $intPID ? 1 : 0;
 	      }
 }
 
-method sendEarnedStamps {
-       my $arrInfo = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT `stamps` FROM $self->{parent}->{dbConfig}->{tables}->{stamp} WHERE `ID` = '$self->{property}->{personal}->{userID}'");
-       my $strStamps = $arrInfo->{stamps};
-       $self->sendXT(['gps', '-1', $self->{property}->{personal}->{userID}, $strStamps]);
-}
-
-method addIgloo(Int $intIgloo) {
-
+method addIgloo($intIgloo) {
+       return if (!int($intIgloo));
        if (!exists($self->{parent}->{modules}->{crumbs}->{iglooCrumbs}->{$intIgloo})) {
 	          return $self->sendError(402);
-       } elsif (first {$_ == $intIgloo} @{$self->{ownedIgloos}}) {
+       } elsif (grep /$intIgloo/, @{$self->{ownedIgloos}}) {
 	          return $self->sendError(400);
-       } elsif ($self->{property}->{personal}->{coins} < $self->{parent}->{modules}->{crumbs}->{iglooCrumbs}->{$intIgloo}->{cost}) {
+       } elsif ($self->{coins} < $self->{parent}->{modules}->{crumbs}->{iglooCrumbs}->{$intIgloo}->{cost}) {
 	          return $self->sendError(401);
        }   
-
        push(@{$self->{ownedIgloos}}, $intIgloo); 
        $self->updateIglooInventory(join('|', @{$self->{ownedIgloos}}));
-       $self->updateCoins($self->{property}->{personal}->{coins} - $self->{parent}->{modules}->{crumbs}->{iglooCrumbs}->{$intIgloo}->{cost});
-       $self->sendXT(['au', '-1', $intIgloo, $self->{property}->{personal}->{coins}]);
+       $self->updateCoins($self->{coins} - $self->{parent}->{modules}->{crumbs}->{iglooCrumbs}->{$intIgloo}->{cost});
+       $self->sendXT(['au', '-1', $intIgloo, $self->{coins}]);
 }
 
-method addFurniture(Int $intFurn) {
-
+method addFurniture($intFurn) {
+       return if (!int($intFurn));
        if (!exists($self->{parent}->{modules}->{crumbs}->{furnitureCrumbs}->{$intFurn})) {
            return $self->sendError(402);
-       } elsif ($self->{property}->{personal}->{coins} < $self->{parent}->{modules}->{crumbs}->{furnitureCrumbs}->{$intFurn}->{cost}) {
+       } elsif ($self->{coins} < $self->{parent}->{modules}->{crumbs}->{furnitureCrumbs}->{$intFurn}->{cost}) {
 	          return $self->sendError(401);
        }
-
-       push(@{$self->{ownedFurns}}, $intFurn); 
-       $self->updateFurnInventory(join('%', @{$self->{ownedFurns}}));
-       $self->updateCoins($self->{property}->{personal}->{coins} - $self->{parent}->{modules}->{crumbs}->{furnitureCrumbs}->{$intFurn}->{cost});
-       $self->sendXT(['af', '-1', $intFurn, $self->{property}->{personal}->{coins}]);
+       my $quantity = 1;
+       if (exists($self->{ownedFurns}->{$intFurn})) {
+           $quantity += $self->{ownedFurns}->{$intFurn};           
+       }
+       $self->{ownedFurns}->{$intFurn} = $quantity;  
+       my $string = '';
+       while (my ($furnID, $furnQuantity) = each(%{$self->{ownedFurns}})) {
+              $string .= $furnID . '|' . $furnQuantity . ',';
+       } 
+       $self->updateFurnInventory($string);
+       $self->updateCoins($self->{coins} - $self->{parent}->{modules}->{crumbs}->{furnitureCrumbs}->{$intFurn}->{cost});
+       $self->sendXT(['af', '-1', $intFurn, $self->{coins}]);
 }
 
 method openIgloo {
-       my $intPID = $self->{property}->{personal}->{userID};
-       my $strName = $self->{property}->{personal}->{username};
-       $self->{parent}->{igloos}->{$intPID} = $strName;
+       $self->{parent}->{igloos}->{$self->{ID}} = $self->{username};
 }
 
 method closeIgloo {
-       my $intPID = $self->{property}->{personal}->{userID};
-       delete($self->{parent}->{igloos}->{$intPID});
+       delete($self->{parent}->{igloos}->{$self->{ID}});
 }
 
-method updateFurnInventory(Str $strFurns) {
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{igloo}, 'ownedFurns', $strFurns, 'ID', $self->{property}->{personal}->{userID});
+method updateFurnInventory($strFurns) {
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'ownedFurns', $strFurns, 'ID', $self->{ID});
 }
 
-method updateIglooInventory(Str $strIgloos) {
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{igloo}, 'ownedIgloos', $strIgloos, 'ID', $self->{property}->{personal}->{userID});
+method updateIglooInventory($strIgloos) {
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'ownedIgloos', $strIgloos, 'ID', $self->{ID});
 }
 
-method updateFurniture(Str $strFurn) {
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{igloo}, 'furniture', $strFurn, 'ID', $self->{property}->{personal}->{userID});
+method updateFurniture($strFurn) {
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'furniture', $strFurn, 'ID', $self->{ID});
 }
 
-method updateIgloo(Int $intIgloo) {
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{igloo}, 'igloo', $intIgloo, 'ID', $self->{property}->{personal}->{userID});
-       $self->sendXT(['ao', '-1', $intIgloo, $self->{property}->{personal}->{coins}]);
+method updateIgloo($intIgloo) {
+       return if (!int($intIgloo));
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'igloo', $intIgloo, 'ID', $self->{ID});
+       $self->sendXT(['ao', '-1', $intIgloo, $self->{coins}]);
 }
 
-method updateFloor(Int $intFloor) {
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{igloo}, 'floor', $intFloor, 'ID', $self->{property}->{personal}->{userID});
-       $self->sendXT(['ag', '-1', $intFloor, $self->{property}->{personal}->{coins}]);
+method updateFloor($intFloor) {
+       return if (!int($intFloor));
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'floor', $intFloor, 'ID', $self->{ID});
+       $self->sendXT(['ag', '-1', $intFloor, $self->{coins}]);
 }
 
-method updateMusic(Int $intMusic) {
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{igloo}, 'music', $intMusic, 'ID', $self->{property}->{personal}->{userID});
+method updateMusic($intMusic) {
+       return if (!int($intMusic));
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'music', $intMusic, 'ID', $self->{ID});
        $self->sendXT(['um', '-1', $intMusic]);
 }
 
-method botSay(Str $strMsg) {
-       return if (length($strMsg) > 250);
-       $self->sendRoom('%xt%sm%-1%0%' . decode_entities($strMsg) . '%');
+method botSay($strMsg) {
+       if ($strMsg ne '') {
+           $self->sendRoom('%xt%sm%-1%0%' . decode_entities($strMsg) . '%');
+       }
 }
 
-method getPostcards(Int $playerID) {
-       my $arrDetails = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT `mailerName`, `mailerID`, `postcardType`, `notes`, `timestamp`, `postcardID` FROM $self->{parent}->{dbConfig}->{tables}->{mail} WHERE `recepient` = '$playerID'");
+method getPostcards($intPID) {
+       return if (!int($intPID));
+       my $arrDetails = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT `mailerName`, `mailerID`, `postcardType`, `notes`, `timestamp`, `postcardID` FROM postcards WHERE `recepient` = '$intPID'");
        return $arrDetails;
 }
 
-method getUnreadPostcards(Int $playerID) {
-       my $arrPostcards = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT * FROM $self->{parent}->{dbConfig}->{tables}->{mail} WHERE `recepient` = '$playerID'");
+method getUnreadPostcards($intPID) {
+       return if (!int($intPID));
+       my $arrPostcards = $self->{parent}->{modules}->{mysql}->fetchColumns("SELECT * FROM postcards WHERE `recepient` = '$intPID'");
        my $unreadCount = 0;
        foreach (%{$arrPostcards}) {
                 if (!$_>{isRead}) {
@@ -446,27 +476,56 @@ method getUnreadPostcards(Int $playerID) {
        return $unreadCount;
 }
 
-method getPostcardCount(Int $playerID) {
-       my $intCount = $self->{parent}->{modules}->{mysql}->countRows("SELECT `recepient` FROM $self->{parent}->{dbConfig}->{tables}->{mail} WHERE `recepient` = '$playerID'");
+method getPostcardCount($intPID) {
+       return if (!int($intPID));
+       my $intCount = $self->{parent}->{modules}->{mysql}->countRows("SELECT `recepient` FROM postcards WHERE `recepient` = '$intPID'");
        return $intCount;
 }
 
-method sendPostcard(Int $recepient, Str $mailerName, Int $mailerID, Str $notes, Int $type, Int $timestamp) {
+method sendPostcard($recepient, $mailerName = 'Server', $mailerID = 0, $notes, $type, $timestamp = time) {
        my @fields = ('recepient', 'mailerName', 'mailerID', 'notes', 'timestamp', 'postcardType');
        my @values = ($recepient, $mailerName, $mailerID, $notes, $type, $timestamp);
-       my $postcardID = $self->{parent}->{modules}->{mysql}->insertData($self->{parent}->{dbConfig}->{tables}->{mail}, \@fields, \@values);
+       my $postcardID = $self->{parent}->{modules}->{mysql}->insertData('postcards', \@fields, \@values);
        return $postcardID;
 }
 
-method updateNewMail(Bool $isNew) {
-       $self->{property}->{personal}->{isNewMail} = $isNew;
-       $self->{parent}->{modules}->{mysql}->updateTable($self->{parent}->{dbConfig}->{tables}->{main}, 'isNewMail', $isNew, 'ID', $self->{property}->{personal}->{userID});
+method updateNewMail($isNew) {
+       return if (!int($isNew));
+       $self->{isNewMail} = $isNew;
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'isNewMail', $isNew, 'ID', $self->{ID});
+}
+
+method updateIgnore($strIgnored, $intPID) {
+       return if (!$strIgnored && !int($intPID));
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'ignored', $strIgnored, 'ID', $intPID);
+}
+
+method updateBuddies($strBuddies, $intPID) {
+       return if (!$strBuddies && !int($intPID));
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'buddies', $strBuddies, 'ID', $intPID);
+}
+
+method updateMute($objClient, $blnMute) {
+       return if (!int($blnMute));
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'isMuted', $blnMute, 'ID', $objClient->{ID});
+       $objClient->{property}->{personal}->{isMuted} = $blnMute;
+}
+
+method updateBan($objClient, $strBan) {
+       $self->{parent}->{modules}->{mysql}->updateTable('users', 'isBanned', $strBan, 'ID', $objClient->{ID});
+       $objClient->{property}->{personal}->{isBanned} = $strBan;   
+}
+
+method updateBanCount($objClient, $intVal) {
+       return if (!int($intVal));
+       $self->{parent}->{modules}->{mysql}->updateTable('users' , 'banCount', $intVal, 'ID', $objClient->{ID});
+       $objClient->{banCount} = $intVal;
 }
 
 method DESTROY {
-       $self->removePlayer();
-       $self->handleBuddyOffline();
-       $self->closeIgloo();
+       $self->removePlayer;
+       $self->handleBuddyOffline;
+       $self->closeIgloo;
        $self->{parent}->{modules}->{base}->removeClientBySock($self->{sock});
 }
 
