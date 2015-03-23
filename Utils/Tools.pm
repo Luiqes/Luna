@@ -1,7 +1,7 @@
+package Tools;
+
 use strict;
 use warnings;
-
-package Tools;
 
 use Method::Signatures;
 use LWP::Simple;
@@ -29,7 +29,7 @@ method asyncGetContent(\@arrUrls) {
        return \%arrInfo;     
 } 
 
-method parseXML($strData) {
+method parseXML(Str $strData) {
        my $strXML;
        eval {
           $strXML = XML::Simple::parse_string($strData);
