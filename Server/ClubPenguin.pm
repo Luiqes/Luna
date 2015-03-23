@@ -1,15 +1,33 @@
+package ClubPenguin;
+
 use strict;
 use warnings;
 
-package ClubPenguin;
+use Moose;
+
+extends 'Buddies';
+extends 'Ignore';
+extends 'EPF';
+extends 'Igloos';
+extends 'Settings';
+extends 'Inventory';
+extends 'Navigation';
+extends 'Mining';
+extends 'Postcards'; 
+extends 'Stamps';
+extends 'Messaging';
+extends 'Player';
+extends 'Moderator';
+extends 'Pets';
+extends 'Toys'; 
+extends 'Tables';
+extends 'Ninja';
+extends 'Election';
 
 use Method::Signatures;
 use Digest::MD5 qw(md5_hex);
 use Math::Round qw(round);
-use File::Basename;
 use List::Compare qw(is_LsubsetR);
-use JSON qw(decode_json);
-use Cwd;
 
 method new($resConfig, $resDBConfig) {
        my $obj = bless {}, $self;
@@ -22,35 +40,136 @@ method new($resConfig, $resDBConfig) {
                    login => 'handleLogin'
                },
                xt => {
-                  s => 'handleStandard',
-                  red => 'handleRedemption',
-	                 z => 'handleGaming'
-               },
-               redemption => {
-                          rjs => 'handleRedemptionJoinServer',
-                          rgbq => 'handleRedemptionBookQuestion',
-                          rsba => 'handleRedemptionSendBookAnswer',
-                          rsc => 'handleRedemptionSendCode',
-                          rsgc => 'handleRedemptionSendGoldenCode'     
-               }
+                  s => {
+                    'j#jp' => 'handleJoinPlayer',
+                    'j#js' => 'handleJoinServer',
+                    'j#jr' => 'handleJoinRoom',
+                    'j#jg' => 'handleJoinGame',
+                    'j#grs' => 'handleGetRoomSynced'
+                    'b#gb' => 'handleGetBuddies',
+                    'b#br' => 'handleBuddyRequest',
+                    'b#ba' => 'handleBuddyAccept',
+                    'b#rb' => 'handleRemoveBuddy',
+                    'b#bf' => 'handleBuddyFind',
+                    'f#epfai' => 'handleEPFAddItem',
+                    'f#epfga' => 'handleEPFGetAgent',
+                    'f#epfgr' => 'handleEPFGetRevision',
+                    'f#epfgf' => 'handleEPFGetField',
+                    'f#epfsf' => 'handleEPFSetField',
+                    'f#epfsa' => 'handleEPFSetAgent',
+                    'f#epfgm' => 'handleEPFGetMessage',
+                    'g#af' => 'handleAddFurniture',
+                    'g#ao' => 'handleUpdateIgloo',
+                    'g#au' => 'handleAddIgloo',
+                    'g#ag' => 'handleUpdateFloor',
+                    'g#um' => 'handleUpdateMusic',
+                    'g#gm' => 'handleGetIglooDetails',
+                    'g#go' => 'handleGetOwnedIgloos',
+                    'g#or' => 'handleOpenIgloo',
+                    'g#cr' => 'handleCloseIgloo',
+                    'g#gf' => 'handleGetOwnedFurniture',
+                    'g#ur' => 'handleGetFurnitureRevision',
+                    'g#gr' => 'handleGetOpenedIgloos'
+                    'n#gn' => 'handleGetIgnored',
+                    'n#an' => 'handleAddIgnore',
+                    'n#rn' => ' handleRemoveIgnored',
+                    'i#gi' => 'handleGetItems',
+                    'i#ai' => 'handleAddItem',
+                    'i#qpp' => 'handleQueryPlayerPins',
+                    'i#qpa' => 'handleQueryPlayerAwards',
+                    'm#sm' => 'handleSendMessage',
+                    'r#cdu' => 'handleCoinsDigUpdate',
+                    'o#k' => 'handleKick',
+                    'o#m' => 'handleMute',
+                    'o#b' => 'handleBan',
+                    'p#pg' => 'handleGetPuffle',
+                    'p#pip' => 'handlePufflePip',
+                    'p#pir' => 'handlePufflePir',
+                    'p#ir' => 'handlePuffleIsResting',
+                    'p#ip' => 'handlePuffleIsPlaying',
+                    'p#pw' => 'handlePuffleWalk',
+                    'p#pgu' => 'handlePuffleUser',
+                    'p#pf' => 'handlePuffleFeedFood',
+                    'p#phg' => 'handlePuffleClick',
+                    'p#pn' => 'handleAdoptPuffle',
+                    'p#pr' => 'handlePuffleRest',
+                    'p#pp' => 'handlePufflePlay',
+                    'p#pt' => 'handlePuffleFeed',
+                    'p#pm' => 'handlePuffleMove',
+                    'p#pb' => 'handlePuffleBath',
+                    'u#sf' => 'handleSetFrame',
+                    'u#se' => 'handleSendEmote',
+                    'u#sa' => 'handleSendAction',
+                    'u#ss' => 'handleSendSafe',
+                    'u#sg' => 'handleSendGuide',
+                    'u#sj' => 'handleSendJoke',
+                    'u#sma' => 'handleSendMascot',
+                    'u#sp' => 'handleSetPosition',
+                    'u#sb' => 'handleSnowball',
+                    'u#glr' => 'handleGetLatestRevision',
+                    'u#gp' => 'handleGetPlayer',
+                    'u#h' => 'handleHeartbeat',
+                    'l#mst' => 'handleMailStart',
+                    'l#mg' =>	'handleMailGet',
+                    'l#ms' =>	'handleMailSend',
+                    'l#md'	=>	'handleMailDelete',
+                    'l#mdp'	=>	'handleMailDeletePlayer',
+                    'l#mc' =>	'handleMailChecked',
+                    's#upc' => 'handleUpdatePlayerClothing',
+                    's#uph' => 'handleUpdatePlayerClothing',
+                    's#upf' => 'handleUpdatePlayerClothing',
+                    's#upn' => 'handleUpdatePlayerClothing',
+                    's#upb' => 'handleUpdatePlayerClothing',
+                    's#upa' => 'handleUpdatePlayerClothing',
+                    's#upe' => 'handleUpdatePlayerClothing',
+                    's#upp' => 'handleUpdatePlayerClothing',
+                    's#upl' => 'handleUpdatePlayerClothing',			
+                    'st#sse'	=> 'handleSendStampEarned',
+                    'st#gps'	=>	'handleGetPlayersStamps',
+                    'st#gmres' =>	'handleGetMyRecentlyEarnedStamps',
+                    'st#gsbcd' =>	'handleGetStampBookCoverDetails',
+                    'st#ssbcd'	=>	'handleSetStampBookCoverDetails',
+                    't#at' => 'handleAddToy',
+                    't#rt' => 'handleRemoveToy',
+                    'e#dc' => 'handleDonateCoins',
+                    'e#spl' => 'handleSetPoll',
+                    'ni#gnr' => 'handleGetNinjaRevision',
+                    'ni#gnl' => 'handleGetNinjaLevel',
+                    'ni#gcd' => 'handleGetCards',
+                    'ni#gfl' => 'handleGetFireLevel',
+                    'ni#gwl' => 'handleGetWaterLevel',
+                    'ni#gsl' => 'handleGetSnowLevel',
+                    'a#jt' => 'handleJoinTable',
+                    'a#gt' => 'handleGetTable',
+                    'a#upt' => 'handleUpdateTable',
+                    'a#lt' => 'handleLeaveTable'
+                  },
+                  z => {},
+                  red => {
+                      rjs => 'handleRedemptionJoinServer',
+                      rgbq => 'handleRedemptionGetBookQuestion',
+                      rsba => 'handleRedemptionSendBookAnswer',
+                      rsc => 'handleRedemptionSendCode',
+                      rsgc => 'handleRedemptionSendGoldenCode'     
+                  }
+              }
        };
-       %{$obj->{iplog}} = ();
-       %{$obj->{igloos}} = ();
-       $obj->{systems} = ();
-       %{$obj->{plugins}} = ();
+       $obj->{iplog} = {};
+       $obj->{igloos} = {};
+       $obj->{plugins} = {};
+       $obj->{clients} = {};
        return $obj;
 }
 
 method initializeSource {
-       $self->createHeader();
-       $self->loadModules();
-       $self->{modules}->{crumbs}->updateCrumbs();
-       $self->{modules}->{crumbs}->loadCrumbs();
-       $self->loadSystems();
-       $self->initiateMysql();
-       $self->loadPlugins();
-       $self->createServer();
-       $self->initiateServers();
+       $self->createHeader;
+       $self->loadModules;
+       $self->{modules}->{crumbs}->updateCrumbs;
+       $self->{modules}->{crumbs}->loadCrumbs;
+       $self->initiateMysql;
+       $self->loadPlugins;
+       $self->createServer;
+       $self->initiateServer;
 }
 
 method createHeader {
@@ -69,56 +188,26 @@ method createHeader {
 
 method loadModules {
        $self->{modules} = {
-                 logger => Logger->new(),
-                 mysql => Mysql->new(),
-                 base => Base->new($self),
-                 crypt => Crypt->new(),
-                 tools => Tools->new(),
+                 logger => Logger->new,
+                 mysql => MySQL->new,
+                 base => Socket->new($self),
+                 crypt => Cryptography->new,
+                 tools => Tools->new,
                  crumbs => Crumbs->new($self),
-                 pbase => PluginBase->new($self)
+                 pbase => CPPlugins->new($self)
        };
-       # Dont uncomment until further notice
-       #$self->{gaming} = {
-                  #manager => Manager->new($self),
-                  #tables => Tables->new($self),
-                  #game => Gaming->new($self)
-       #};
-}
-
-method loadSystems {
-       my @arrUrls = ();
-       my $resSystems = 'file://' . cwd() . '/Server/Centre/Systems.json';      
-       push(@arrUrls, $resSystems);
-       my $arrInfo = $self->{modules}->{tools}->asyncGetContent(\@arrUrls);
-       while (my ($strFName, $arrData) = each(%{$arrInfo})) {
-              my $arrSystems = decode_json($arrData);
-              foreach my $strSystem (sort keys %{$arrSystems}) {
-                 %{$self->{systems}->{$strSystem}} = (package => $arrSystems->{$strSystem}->{class}->new($self), method => $arrSystems->{$strSystem}->{handler});
-              }
-       }
-       if (scalar(keys %{$self->{systems}}) > 0) {
-           $self->{modules}->{logger}->output('Successfully Loaded ' . scalar(keys %{$self->{systems}}) . ' Systems', Logger::LEVELS->{inf}); 
-       } else {
-           $self->{modules}->{logger}->output('Failed To Load Any Systems', Logger::LEVELS->{err}); 
-       }
 }
 
 method loadPlugins {       
        my @arrFiles = glob('Server/Plugins/*.pm');
-       foreach my $strFile (@arrFiles) {
-          my $strClass = basename($strFile, '.pm');
-          if ($strClass ne 'CmdHandlers') {
-              my $objPlugin = $strClass->new($self);
-              $self->{plugins}->{$strClass} = $objPlugin;
-          }
+       foreach (@arrFiles) {
+                my $strClass = basename($_, '.pm');
+                my $objPlugin = $strClass->new($self);
+                $self->{plugins}->{$strClass} = $objPlugin;
        }
-       foreach my $objPlugin (values %{$self->{plugins}}) {
-          if ($objPlugin->{isEnabled}) {
-              $objPlugin->handleInitialization();
-          }
-       }
-       if (scalar(keys %{$self->{plugins}}) > 0) {
-           $self->{modules}->{logger}->output('Successfully Loaded ' . scalar(keys %{$self->{plugins}}) . ' Plugins', Logger::LEVELS->{inf}); 
+       my $pluginCount = scalar(keys %{$self->{plugins}});
+       if ($pluginCount > 0) {
+           $self->{modules}->{logger}->output('Successfully Loaded ' . $pluginCount . ' Plugins', Logger::LEVELS->{inf}); 
        } else {
            $self->{modules}->{logger}->output('Failed To Load Any Plugins', Logger::LEVELS->{err}); 
        }
@@ -131,14 +220,14 @@ method initiateMysql {
 
 method createServer {
        if ($self->{servConfig}->{servType} eq 'game') {
-           my $arrInfo = $self->{modules}->{mysql}->countRows("SELECT `servPort` FROM servers WHERE `servPort` = '$self->{servConfig}->{servPort}'");
-           if ($arrInfo <= 0) {
-               $self->{modules}->{mysql}->execQuery("INSERT INTO servers (`servPort`, `servName`, `servIP`) VALUES ('" . $self->{servConfig}->{servPort} . "', '" . $self->{servConfig}->{servName} . "', '" . $self->{servConfig}->{servHost} . "')");       
+           my $intExist = $self->{modules}->{mysql}->countRows("SELECT `servPort` FROM servers WHERE `servPort` = '$self->{servConfig}->{servPort}'");
+           if ($intExist <= 0) {
+               $self->{modules}->{mysql}->insertData('servers', ['servPort', 'servName', 'servIP'], [$self->{servConfig}->{servPort}, $self->{servConfig}->{servName}, $self->{servConfig}->{servHost}]);       
            }
        }
 }
 
-method initiateServers {
+method initiateServer {
        $self->{modules}->{base}->createSocket($self->{servConfig}->{servPort}) or $self->{modules}->{logger}->kill('Failed to Bind to Port: ' . $self->{servConfig}->{servPort}, Logger::LEVELS->{err});
        $self->{modules}->{logger}->output('Successfully Started ' . ucfirst($self->{servConfig}->{servType}) . ' Server', Logger::LEVELS->{inf});
 }
@@ -151,34 +240,35 @@ method handleCustomPlugins($strType, $strData, $objClient) {
 }
 
 method handleXMLData($strData, $objClient) {
-       return if (index($strData, '%') != -1);
        if ($strData eq '<policy-file-request/>') {
 	          return $self->handleCrossDomainPolicy($objClient);
        }
        my $strXML = $self->{modules}->{tools}->parseXML($strData);
-       return  if (!$strXML);
+       if (!$strXML) {
+           return $self->{modules}->{base}->removeClientBySock($objClient->{sock});
+       }
        my $strAct = $strXML->{body}->{action};
        return if (!exists($self->{handlers}->{xml}->{$strAct}));
        my $strHandler = $self->{handlers}->{xml}->{$strAct};
        return if (!defined(&{$strHandler}));
-       $self->$strHandler($strXML, $strData, $objClient);
+       $self->$strHandler($strXML, $objClient);
        $self->handleCustomPlugins('xml', $strData, $objClient);
 }
 
 method handleCrossDomainPolicy($objClient) {
-       $objClient->write("<cross-domain-policy><allow-access-from domain='*' to-ports='*'/></cross-domain-policy>");
+       $objClient->write("<cross-domain-policy><allow-access-from domain='*' to-ports='" . $self->{servConfig}->{servPort} . "'/></cross-domain-policy>");
 }
 
-method handleVerChk($strXML, $strData, $objClient) {
-       $objClient->write("<msg t='sys'><body action='apiOK' r='0'></body></msg>");
+method handleVerChk($strXML, $objClient) {
+       return $strXML->{body}->{v} eq 153 ? $objClient->write("<msg t='sys'><body action='apiOK' r='0'></body></msg>") : $objClient->write("<msg t='sys'><body action='apiKO' r='0'></body></msg>");
 }
 
-method handleRndK($strXML, $strData, $objClient) {
-       $objClient->{property}->{personal}->{loginKey} = $self->{modules}->{crypt}->generateKey();
-       $objClient->write("<msg t='sys'><body action='rndK' r='-1'><k>" . $objClient->{property}->{personal}->{loginKey} . "</k></body></msg>");
+method handleRndK($strXML, $objClient) {
+       $objClient->{loginKey} = $self->{modules}->{crypt}->generateKey;
+       $objClient->write("<msg t='sys'><body action='rndK' r='-1'><k>" . $objClient->{loginKey} . "</k></body></msg>");
 }
 
-method handleLogin($strXML, $strData, $objClient) {     
+method handleLogin($strXML, $objClient) {     
        my $strName = $strXML->{body}->{login}->{nick};
        my $strPass = $strXML->{body}->{login}->{pword};     
        $self->checkBeforeLogin($strName, $strPass, $objClient);
@@ -188,32 +278,33 @@ method checkBeforeLogin($strName, $strPass, $objClient) {
        my $intNames = $self->{modules}->{mysql}->countRows("SELECT `username` FROM $self->{dbConfig}->{tables}->{main} WHERE `username` = '$strName'");
        my $arrInfo = $self->{modules}->{mysql}->fetchColumns("SELECT * FROM $self->{dbConfig}->{tables}->{main} WHERE `username` = '$strName'");
        my $strHash = $self->generateHash($arrInfo, $objClient);      
-
-       return if (!$arrInfo);
-
        if ($intNames <= 0) {
            $objClient->sendError(100);
            return $self->{modules}->{base}->removeClientBySock($objClient->{sock});
        } elsif ($strPass ne $strHash) {
            $objClient->sendError(101);	
+           $objClient->updateInvalidLogins($arrInfo->{invalidLogins} + 1, $strName);
+           return $self->{modules}->{base}->removeClientBySock($objClient->{sock});
+       } elsif ($arrInfo->{invalidLogins} > 3) {
+           $objClient->sendError(900);
            return $self->{modules}->{base}->removeClientBySock($objClient->{sock});
        } elsif (!$arrInfo->{active})  {
            $objClient->sendError(900);
            return $self->{modules}->{base}->removeClientBySock($objClient->{sock});
-       } elsif ($arrInfo->{isBanned} eq 'PERM') {
-           $objClient->sendError(603);	
-           return $self->{modules}->{base}->removeClientBySock($objClient->{sock});
-       } elsif ($arrInfo->{isBanned} > time()) {
-           my $intTime = round(($arrInfo->{isBanned} - time()) / 3600);
-           $objClient->sendError(601 . '%' . $intTime);	
-           return $self->{modules}->{base}->removeClientBySock($objClient->{sock});
+       } elsif ($arrInfo->{isBanned} eq 'PERM' || $arrInfo->{isBanned} > time) {
+                if (int($arrInfo->{isBanned})) {
+                    my $intTime = round(($arrInfo->{isBanned} - time) / 3600);
+                    $objClient->sendError(601 . '%' . $intTime);	
+                } else {
+                    $objClient->sendError(603);	
+                }
+                return $self->{modules}->{base}->removeClientBySock($objClient->{sock});                
        }
-
        $self->continueLogin($strName, $arrInfo, $objClient);
 } 
 
 method generateHash($arrInfo, $objClient) {
-       my $strLoginKey = $objClient->{property}->{personal}->{loginKey};
+       my $strLoginKey = $objClient->{loginKey};
        my $strLoginHash = $self->{modules}->{crypt}->encryptPass(uc($arrInfo->{password}), $strLoginKey);                            
        my $strGameHash = $self->{modules}->{crypt}->swapMD5(md5_hex($arrInfo->{loginKey} . $strLoginKey)) . $arrInfo->{loginKey};
        my $strType = $self->{servConfig}->{servType};
@@ -223,16 +314,16 @@ method generateHash($arrInfo, $objClient) {
 
 method continueLogin($strName, $arrInfo, $objClient) {
        if ($self->{servConfig}->{servType} eq 'login') {
-           $objClient->write('%xt%gs%-1%' . $self->generateServerList() . '%');  
-           $objClient->write('%xt%l%-1%' . $arrInfo->{ID} . '%' . $self->{modules}->{crypt}->reverseMD5($objClient->{property}->{personal}->{loginKey}) . '%0%');
-           $objClient->updateKey($self->{modules}->{crypt}->reverseMD5($objClient->{property}->{personal}->{loginKey}), $strName);
+           $objClient->write('%xt%gs%-1%' . $self->generateServerList . '%');  
+           $objClient->write('%xt%l%-1%' . $arrInfo->{ID} . '%' . $self->{modules}->{crypt}->reverseMD5($objClient->{loginKey}) . '%0%');
+           $objClient->updateKey($self->{modules}->{crypt}->reverseMD5($objClient->{loginKey}), $strName);
        } else {
-           $objClient->{property}->{personal}->{userID} = $arrInfo->{ID};
-           $objClient->{property}->{personal}->{isAuth} = 1;
-           $objClient->updateIP($objClient->{property}->{personal}->{ipAddr});
-           $objClient->loadDetails();
+           $objClient->{userID} = $arrInfo->{ID};
+           $objClient->{isAuth} = 1;
+           $objClient->updateIP($objClient->{ipAddr});
+           $objClient->loadDetails;
            $objClient->sendXT(['l', '-1']);
-           $objClient->handleBuddyOnline();
+           $objClient->handleBuddyOnline;
        }
 }
 
@@ -241,7 +332,6 @@ method generateServerList {
        my $arrInfo = $self->{modules}->{mysql}->fetchColumns("SELECT * FROM servers");
        my $intPopulation = $arrInfo->{curPop};
        my $intBars = 0;
-
        if ($intPopulation <= 50) {    
            $intBars = 1;
        } elsif ($intPopulation > 50 && $intPopulation <= 100) {
@@ -255,66 +345,54 @@ method generateServerList {
        } elsif ($intPopulation > 400 && $intPopulation <= 500 && $intPopulation > 500) {
            $intBars = 6;
        }
-
        $strServer .= $arrInfo->{servIP} . ':' . $arrInfo->{servPort} . ':' . $arrInfo->{servName} . ':' . $intBars . '|';     
        return $strServer;
 }
 
 method handleXTData($strData, $objClient) {
-       return if (index($strData, '|') != -1);
+       if (index($strData, '|') != -1) {
+           return $self->{modules}->{base}->removeClientBySock($objClient->{sock});
+       }
        my @arrData = split('%', $strData);
        my $chrXT = $arrData[2];
-       return if (!exists($self->{handlers}->{xt}->{$chrXT}));
-       my $strHandler = $self->{handlers}->{xt}->{$chrXT};
-       return if (!defined(&{$strHandler}) && !$objClient->{property}->{personal}->{isAuth});
-       return defined($objClient->{property}->{personal}->{username}) ? $self->$strHandler($strData, $objClient) : $self->{modules}->{base}->removeClientBySock($objClient->{sock});
-}
-
-method handleStandard($strData, $objClient) {
-       my @arrXT = split('%', $strData);
-       my @arrStd = split('#', $arrXT[3]);
-       my $chrStd = $arrStd[0];
-       return if (!exists($self->{systems}->{$chrStd}));
-       my $objClass = $self->{systems}->{$chrStd}->{package};
-       my $strHandler = $self->{systems}->{$chrStd}->{method};
-       $objClass->$strHandler($strData, $objClient);
-       $self->handleCustomPlugins('xt', $strData, $objClient);
-}
-
-method handleRedemption($strData, $objClient) {
-       my @arrData = split('%', $strData);
-       my $strCmd = $arrData[3];
-       return if (!exists($self->{handlers}->{redemption}->{$strCmd}));
-       my $strHandler = $self->{handlers}->{redemption}->{$strCmd};
+       my $stdXT = $arrData[3];
+       return if (!exists($self->{handlers}->{xt}->{$chrXT}->{$stdXT}));
+       my $strHandler = $self->{handlers}->{xt}->{$chrXT}->{$stdXT};
        return if (!defined(&{$strHandler}));
-       $self->$strHandler(\@arrData, $objClient);
+       if ($objClient->{isAuth} && $objClient->{username} ne '') { 
+           $self->$strHandler($strData, $objClient);
+       } else {
+           $self->{modules}->{base}->removeClientBySock($objClient->{sock});
+       }
 }
 
-method handleRedemptionJoinServer(\@arrData, $objClient) {
-       my @arrValues = ();
-       for my $intVal (1..16) {
-         push(@arrValues, $intVal);
+method handleRedemptionJoinServer($strData, $objClient) {
+       my @arrValues;
+       for (1..16) {
+            push(@arrValues, $_);
        }
        my $intStr = join(',', @arrValues);
-       $objClient->sendXT(['rjs', $arrData[4], $intStr, 0]);	             
+       $objClient->sendXT(['rjs', '-1', $intStr, 0]);	             
 }
 
-method handleRedemptionBookQuestion(\@arrData, $objClient) {
+method handleRedemptionGetBookQuestion($strData, $objClient) {
+       my @arrData = split('%', $strData);
        my $intPage = $self->{modules}->{crypt}->generateInt(1, 80);
        my $intLine = $self->{modules}->{crypt}->generateInt(1, 50);
        my $intWord = $self->{modules}->{crypt}->generateInt(1, 25);
-       $objClient->sendXT(['rgbq', $arrData[4], $arrData[5], $intPage, $intLine, $intWord]);
+       $objClient->sendXT(['rgbq', '-1', $arrData[5], $intPage, $intLine, $intWord]);
 }
 
-method handleRedemptionSendBookAnswer(\@arrData, $objClient) {
+method handleRedemptionSendBookAnswer($strData, $objClient) {
+       my @arrData = split('%', $strData);
        my $intCoins = $arrData[5];
-       $objClient->sendXT(['rsba', $arrData[4] , $intCoins]);
-       $objClient->updateCoins($objClient->{property}->{personal}->{coins} + $intCoins);		
+       $objClient->sendXT(['rsba', '-1', $intCoins]);
+       $objClient->updateCoins($objClient->{coins} + $intCoins);		
 }
 
-method handleRedemptionSendCode(\@arrData, $objClient) {
-       my $strName = $arrData[5];
-        
+method handleRedemptionSendCode($strData, $objClient) {
+       my @arrData = split('%', $strData);
+       my $strName = $arrData[5];        
        if (length($strName) > 13) {
            return $objClient->sendError(21703);
        } elsif (length($strName) < 13) {
@@ -323,8 +401,7 @@ method handleRedemptionSendCode(\@arrData, $objClient) {
            return $objClient->sendError(20720);
        } elsif ($self->{modules}->{crumbs}->{redeemCrumbs}->{$strName}->{type} eq 'golden') {
            return $self->{modules}->{base}->removeClientBySock($objClient->{sock});
-       }
-        
+       }        
        my $strItems = $self->{modules}->{crumbs}->{redeemCrumbs}->{$strName}->{items};
        my $intCoins = $self->{modules}->{crumbs}->{redeemCrumbs}->{$strName}->{cost};
        my @arrItems = split('\\|', $strItems);
@@ -332,16 +409,16 @@ method handleRedemptionSendCode(\@arrData, $objClient) {
        if (is_LsubsetR([\@arrItems, \@arrExisting])) {
            return $objClient->sendError(20721);
        }
-       $objClient->sendXT(['rsc', $arrData[4], 'CAMPAIGN', $strItems, $intCoins]);  
-       foreach my $intItem (@arrItems) {
-          $objClient->addItem($intItem);
-          $objClient->updateCoins($objClient->{property}->{personal}->{coins} - $intCoins);
+       $objClient->sendXT(['rsc', '-1', 'CAMPAIGN', $strItems, $intCoins]);  
+       $objClient->updateCoins($objClient->{coins} - $intCoins);
+       foreach (@arrItems) {
+                $objClient->addItem($_);
        }
 }
 
-method handleRedemptionSendGoldenCode(\@arrData, $objClient) {
+method handleRedemptionSendGoldenCode($strData, $objClient) {
+       my @arrData = split('%', $strData);
        my $strName = $arrData[5];
-
        if (length($strName) > 13) {
            return $objClient->sendError(21703);
        } elsif (length($strName) < 13) {
@@ -351,26 +428,22 @@ method handleRedemptionSendGoldenCode(\@arrData, $objClient) {
        } elsif ($self->{modules}->{crumbs}->{redeemCrumbs}->{$strName}->{type} eq 'normal') {
            return $self->{modules}->{base}->removeClientBySock($objClient->{sock});
        }
-
        my $strItems = $self->{modules}->{crumbs}->{redeemCrumbs}->{$strName}->{items};
        my @arrItems = split('\\|', $strItems);
        my @arrExisting = @{$objClient->{inventory}};
        if (is_LsubsetR([\@arrItems, \@arrExisting])) {
            return $objClient->sendError(20721);
        }
-       $objClient->sendXT(['rsgc', $arrData[4], 'GOLDEN', $strItems]);  
-       foreach my $intItem (@arrItems) {
-          $objClient->addItem($intItem);
+       $objClient->sendXT(['rsgc', '-1', 'GOLDEN', $strItems]);  
+       foreach (@arrItems) {
+                $objClient->addItem($_);
        }
 }
 
-method handleGaming($strData, $objClient) {
-       # Don't uncomment until further notice
-       #$self->{gaming}->{game}->handleData($strData, $objClient);
-}
+method handleGaming($strData, $objClient) {}
 
 method generateRoom {
-       my @arrRooms = keys(%{$self->{modules}->{crumbs}->{roomCrumbs}});
+       my @arrRooms = keys %{$self->{modules}->{crumbs}->{roomCrumbs}};
        my $intRoom = $arrRooms[rand(@arrRooms)];
        return $intRoom;
 }
