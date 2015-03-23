@@ -1,17 +1,25 @@
+package Commands;
+
 use strict;
 use warnings;
 
-package Commands;
-
-use HTML::Entities;
 use Method::Signatures;
+
+use Moose;
+
+extends 'CPCommands';
 
 method new($resChild) {
        my $obj = bless {}, $self;
        $obj->{child} = $resChild;
-       $obj->{isEnabled} = 1;
-       $obj->{handlers} = CmdHandlers->new($obj->{child});
-       %{$obj->{commands}} = (
+       $obj->{pluginType} = 'XT';
+       $obj->{property} = {
+              'm#sm' => {
+                     handler => 'handleCommand',
+                     isEnabled => 1
+              }
+       };
+       $obj->{commands} = {
                  members => {
                          ai => 'handleAddItem',
                          ac => 'handleAddCoins',
@@ -30,12 +38,8 @@ method new($resChild) {
                        global => 'handleServerSay',
                        summon => 'handleSummonClient'
                  }
-       );
+       };
        return $obj;
-}
-
-method handleInitialization {
-       $self->{child}->{modules}->{pbase}->addCustomXTHandler($self, 'm#sm', 'handleCommand');
 }
 
 method handleCommand($strData, $objClient) {
@@ -53,10 +57,8 @@ method handleCommands($strMsg, $objClient) {
        my $strCmd = lc($arrParts[0]);
        my $strArg = $arrParts[1];
        return if (!exists($self->{commands}->{members}->{$strCmd}));
-       return if ($objClient->{property}->{personal}->{lastCommand} > time());
        my $strHandler = $self->{commands}->{members}->{$strCmd};
-       $self->{handlers}->$strHandler($objClient, $strArg);
-       $objClient->{property}->{personal}->{lastCommand} = time() + 10;
+       $self->$strHandler($objClient, $strArg);
 }
 
 method handleStaffCommands($strMsg, $objClient) {
@@ -64,12 +66,10 @@ method handleStaffCommands($strMsg, $objClient) {
        my $strCmd = lc($arrParts[0]);
        my $strArg = $arrParts[1];
        return if (!exists($self->{commands}->{staff}->{$strCmd}));
-       return if ($objClient->{property}->{personal}->{lastCommand} > time());
        my $strHandler = $self->{commands}->{staff}->{$strCmd};
-       if ($objClient->{property}->{personal}->{isStaff}) {
-           $self->{handlers}->$strHandler($objClient, $strArg);
+       if ($objClient->{isStaff}) {
+           $self->$strHandler($objClient, $strArg);
        }
-       $objClient->{property}->{personal}->{lastCommand} = time() + 10;       
 }
 
 1;
