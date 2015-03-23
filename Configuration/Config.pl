@@ -27,13 +27,5 @@ our $dbConfig = {
     dbHost => '127.0.0.1',
     dbName => 'Luna',
     dbUser => 'root',
-    dbPass => '1337hax',
-    tables => {
-         main => 'users',
-         redeem => 'redemption',
-         stamp => 'stamps',
-         mail => 'postcards',
-         puffle => 'puffles',
-         igloo => 'igloos'
-    }
+    dbPass => '1337hax'
 };
